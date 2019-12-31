@@ -1,11 +1,17 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import HomeRoutes from '@/router/HomeRoutes'
+import RootRoutes from '@/router/RootRoutes'
+import NotFoundRoutes from '@/router/NotFoundRoutes'
+import LoginRoutes from '@/router/LoginRoutes'
+import AdminRoutes from '@/router/AdminRoutes'
 
 Vue.use(VueRouter)
 
 const routes = [
-  HomeRoutes
+  RootRoutes,
+  NotFoundRoutes,
+  LoginRoutes,
+  AdminRoutes
 ]
 
 const router = new VueRouter({

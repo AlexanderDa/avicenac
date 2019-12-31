@@ -7,7 +7,7 @@ import '@quasar/extras/material-icons-outlined/material-icons-outlined.css'
 import '@quasar/extras/material-icons-round/material-icons-round.css'
 import '@quasar/extras/material-icons-sharp/material-icons-sharp.css'
 import '@quasar/extras/fontawesome-v5/fontawesome-v5.css'
-import quasar from 'quasar'
+import quasar, { Notify } from 'quasar'
 
 // @ts-ignore
 Vue.use(quasar, {
@@ -15,5 +15,6 @@ Vue.use(quasar, {
   components: { /* not needed if importStrategy is not 'manual' */ },
   directives: { /* not needed if importStrategy is not 'manual' */ },
   plugins: {
+    Notify
   }
 })
