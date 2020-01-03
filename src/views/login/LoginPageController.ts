@@ -10,7 +10,7 @@ export default class LoginPageController extends Vue {
   private showPass: boolean = true
 
   // Form rules
-  private rules = {
+  private rules:any = {
     email: [
       (v: string) => (v && v.length > 0) || 'Por favor ingrese un correo.',
       (v: string) => validator.isEmail(v) || 'El  correo ingresado no es valido.'
