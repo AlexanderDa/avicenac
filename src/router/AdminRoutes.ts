@@ -16,6 +16,11 @@ const AdminRoutes: RouteConfig = {
       component: () => import('@/views/admin/personal/PersonalPage.vue')
     },
     {
+      path: 'usuarios',
+      name: 'UserPage',
+      component: () => import('@/views/admin/user/UserPage.vue')
+    },
+    {
       path: 'hospital',
       name: 'HospitalPage',
       component: () => import('@/views/admin/hospital/HospitalPage.vue')
