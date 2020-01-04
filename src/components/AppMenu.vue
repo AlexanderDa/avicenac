@@ -46,8 +46,9 @@ export default class AppMenuComponent extends Vue {
 
   public async changePage (page: string) {
     if (page === 'RootPage') {
-      // await localStorage.removeItem('token')
-      // Vue.http.headers.common['Authorization'] = null
+      sessionStorage.removeItem('token')
+      // @ts-ignore
+      Vue.http.headers.common['Authorization'] = undefined
       this.$router.push({ name: page })
     }
     this.$router.push({ name: page })
