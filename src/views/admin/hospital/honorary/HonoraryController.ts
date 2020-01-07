@@ -5,6 +5,7 @@ import Empty from '@/components/Empty.vue'
 import DeletePromt from '@/components/DeletePromt.vue'
 import HonoraryModel from '@/models/HonoraryModel'
 import Crud from '@/views/Crud'
+import HonoraryService from '@/services/HonoraryService'
 
 @Component({
   name: 'Honorary',
@@ -26,13 +27,7 @@ export default class HonoraryController extends Vue implements Crud<HonoraryMode
   private pagination: any = {}
 
   // Element data
-  private elements: HonoraryModel[] = [
-    { id: 1, description: 'LATAM', value: 10, rate: 5.5, mps: 1.25 },
-    { id: 2, description: 'IEES', value: 10, rate: 5.5, mps: 1.25 },
-    { id: 3, description: ' MED-EC S.A.', value: 10, rate: 5.5, mps: 1.25 },
-    { id: 4, description: 'PLUS MEDICAL', value: 10, rate: 5.5, mps: 1.25 },
-    { id: 5, description: 'INMEDICAL', value: 10, rate: 5.5, mps: 1.25 }
-  ]
+  private elements: HonoraryModel[] = []
   private elementIndex: number = -1
   private element: HonoraryModel = new HonoraryModel()
 
@@ -49,8 +44,7 @@ export default class HonoraryController extends Vue implements Crud<HonoraryMode
   /********************************************************
   *                     Initializable                     *
   ********************************************************/
-
-  created (): void {
+  beforeMount (): void {
     this.pagination = { rowsPerPage: 0 }
     this.headers = [
       { name: 'description', field: 'description', label: 'Nombre', align: 'left', sortable: true },
@@ -60,22 +54,53 @@ export default class HonoraryController extends Vue implements Crud<HonoraryMode
       { name: 'action', field: 'action', label: 'Acciones', align: 'center' }
     ]
   }
+  created (): void {
+    this.findElements()
+  }
 
   /********************************************************
  *                    API Services                       *
  ********************************************************/
-  createElement (): void {
-    this.elements.push(this.element)
+  async createElement (): Promise<void> {
+    const service: HonoraryService = new HonoraryService()
+    await service.create(this.element)
+      .then((element: HonoraryModel) => {
+        this.elements.push(element)
+      })
   }
-  findElements (): void {
-    throw new Error('Method not implemented.')
+
+  async findElements (): Promise<void> {
+    const service: HonoraryService = new HonoraryService()
+    await service.find()
+      .then((elements: HonoraryModel[]) => {
+        this.elements = elements
+      })
   }
-  updateElement (): void {
-    Object.assign(this.elements[this.elementIndex], this.element)
+
+  async updateElement (): Promise<void> {
+    const service: HonoraryService = new HonoraryService()
+    // this.thereActives()
+    await service.updateById(this.element)
+      .then(() => {
+        Object.assign(this.elements[this.elementIndex], this.element)
+      })
+      .catch(() => { })
   }
-  deleteElement (element: HonoraryModel): void {
-    const index = this.elements.indexOf(element)
-    this.elements.splice(index, 1)
+
+  async deleteElement (element: HonoraryModel): Promise<void> {
+    const service: HonoraryService = new HonoraryService()
+    await service.deleteById(element.id)
+      .then(() => {
+        const index = this.elements.indexOf(element)
+        this.elements.splice(index, 1)
+      })
+      .catch(() => { })
+  }
+
+  async submit (): Promise<void> {
+    if (this.elementIndex > -1) await this.updateElement()
+    else await this.createElement()
+    this.reset()
   }
 
   /********************************************************
@@ -87,11 +112,7 @@ export default class HonoraryController extends Vue implements Crud<HonoraryMode
     this.element = Object.assign({}, element)
     this.dialog = true
   }
-  submit (): void {
-    if (this.elementIndex > -1) this.updateElement()
-    else this.createElement()
-    this.reset()
-  }
+
   reset (): void {
     this.dialog = false
     this.element = Object.assign({}, new HonoraryModel())

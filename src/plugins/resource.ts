@@ -16,3 +16,8 @@ const options = {
 Vue.use(Resource)
 Vue.use(VueProgressBar, options)
 Vue.use(ProgressBarInterceptor)
+
+// User authorization token
+const token = sessionStorage.getItem('token')
+// @ts-ignore
+Vue.http.headers.common['Authorization'] = token

@@ -73,7 +73,7 @@
             v-model="element.roleId"
             :rules="rules.role"
             lazy-rules
-            :options="roles"
+            :options="$store.state.RoleStore.list"
             label="Rol de usuario"
             option-value="id"
             option-label="name"

@@ -1,10 +1,16 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import { Watch } from 'vue-property-decorator'
 import Crud from '@/views/Crud'
 import Empty from '@/components/Empty.vue'
 import DeletePromt from '@/components/DeletePromt.vue'
 import PersonalModel from '@/models/PersonalModel'
 import validator from 'validator'
+import PersonalService from '@/services/PersonalService'
+import UserModel from '@/models/UserModel'
+import UserService from '@/services/UserService'
+import AccountService from '@/services/AccountService'
+import RoleModel from '@/models/RoleModel'
 
 @Component({
   name: 'PersonalPage',
@@ -18,9 +24,6 @@ export default class PersonalPageController extends Vue implements Crud<Personal
   // GUI
   private wizard: boolean = false
   private step: number = 1
-  private done1: boolean = false
-  private done2: boolean = false
-  private done3: boolean = false
   private search: string = ''
   private headers: any[] = []
   private pagination: any = {}
@@ -29,6 +32,7 @@ export default class PersonalPageController extends Vue implements Crud<Personal
   private elements: PersonalModel[] = []
   private elementIndex: number = -1
   private element: PersonalModel = new PersonalModel()
+  private user: UserModel = new UserModel()
 
   // Validations
   private rules: any = {
@@ -52,8 +56,7 @@ export default class PersonalPageController extends Vue implements Crud<Personal
   /********************************************************
   *                     Initializable                     *
   ********************************************************/
-
-  created (): void {
+  beforeMount (): void {
     this.pagination = { rowsPerPage: 0 }
     this.headers = [
       { name: 'image', field: 'image', label: 'imagen', align: 'center' },
@@ -69,58 +72,109 @@ export default class PersonalPageController extends Vue implements Crud<Personal
       // { name: 'isHiren', field: 'isHiren', label: '', align: 'left' },
       { name: 'action', field: 'action', label: 'Acciones', align: 'center' }
     ]
-    this.findElements()
+  }
+  async created (): Promise<void> {
+    await this.$store.dispatch('loadRoles')
+    await this.findElements()
   }
 
   /********************************************************
  *                    API Services                       *
  ********************************************************/
-  createElement (): void {
-    this.elements.push(this.element)
+  async createElement (): Promise<void> {
+    const service: PersonalService = new PersonalService()
+    // this.thereActives()
+    await service.create(this.element)
+      .then((element: PersonalModel) => {
+        this.elements.push(element)
+      })
   }
-  findElements (): void {
-    this.elements = [
-      {
-        id: 1,
-        image: 'https://avatars2.githubusercontent.com/u/29008617?s=460&v=4',
-        lastName: 'Bonilla Adriano',
-        firstName: 'alexander David',
-        dni: '0604059741',
-        mobile: '0979728686',
-        emailAddress: 'aldaboad@gmail.com',
-        address: 'Av cevallos'
-      }
-    ]
+
+  async findElements (): Promise<void> {
+    const service: PersonalService = new PersonalService()
+    await service.find()
+      .then((elements: PersonalModel[]) => {
+        this.elements = elements
+      })
   }
-  updateElement (): void {
-    Object.assign(this.elements[this.elementIndex], this.element)
+
+  async updateElement (): Promise<void> {
+    const service: PersonalService = new PersonalService()
+    await service.updateById(this.element)
+      .then(() => {
+        Object.assign(this.elements[this.elementIndex], this.element)
+      })
+      .catch(() => { })
   }
-  deleteElement (element: PersonalModel): void {
-    const index = this.elements.indexOf(element)
-    this.elements.splice(index, 1)
+
+  async deleteElement (element: PersonalModel): Promise<void> {
+    const service: PersonalService = new PersonalService()
+    await service.deleteById(element.id)
+      .then(() => {
+        const index = this.elements.indexOf(element)
+        this.elements.splice(index, 1)
+      })
+      .catch(() => { })
+  }
+
+  async submit (): Promise<void> {
+    this.element.emailAddress = this.user.emailAddress
+    this.element.userId = this.user.id
+    if (this.elementIndex > -1) await this.updateElement()
+    else await this.createElement()
+    this.reset()
+  }
+
+  async findUser (userId: number): Promise<void> {
+    const service: UserService = new UserService()
+    await service.findById(userId)
+      .then((element: UserModel) => {
+        this.user = element
+      })
+  }
+
+  async findAccount (): Promise<void> {
+    const service: AccountService = new AccountService()
+    await service.findByEmail(this.user.emailAddress)
+      .then((element: UserModel) => {
+        this.user = element
+      })
   }
 
   /********************************************************
  *                       Methods                         *
  ********************************************************/
 
-  toEditElement (element: PersonalModel): void {
+  async toEditElement (element: PersonalModel): Promise<void> {
     this.elementIndex = this.elements.indexOf(element)
     this.element = Object.assign({}, element)
+    await this.findUser(element.userId)
     this.wizard = true
   }
-  submit (): void {
-    if (this.elementIndex > -1) this.updateElement()
-    else this.createElement()
-    this.reset()
-  }
+
   reset (): void {
     this.wizard = false
+    this.step = 1
+    this.$router.replace({ query: {} })
     this.element = Object.assign({}, new PersonalModel())
+    this.user = Object.assign({}, new UserModel())
     this.elementIndex = -1
   }
 
   private validatePerfilForm (): void {
 
+  }
+
+  getRole (roleId: number): string {
+    let role: string = ''
+    this.$store.state.RoleStore.list.forEach((element: RoleModel) => {
+      if (element.id === roleId) { role = element.name }
+    })
+    return role
+  }
+
+  @Watch('user.emailAddress')
+  private onClearEmailAddress (newValue: string) {
+    if (!(newValue && newValue.length > 0)) this.user = new UserModel()
   }
 }

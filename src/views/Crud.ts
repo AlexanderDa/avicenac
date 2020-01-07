@@ -3,20 +3,22 @@ export default interface Crud<E>{
   /********************************************************
   *                     Initializable                     *
   ********************************************************/
+
+  beforeMount(): void
   created (): void
 
   /********************************************************
   *                    API Services                       *
   ********************************************************/
-  createElement():void
-  findElements (): void
-  updateElement (): void
-  deleteElement (element: E): void
+  createElement():Promise<void>
+  findElements (): Promise<void>
+  updateElement (): Promise<void>
+  deleteElement (element: E): Promise<void>
+  submit (): Promise<void>
 
   /********************************************************
   *                       Methods                         *
   ********************************************************/
   toEditElement (element: E): void
-  submit (): void
   reset(): void
 }

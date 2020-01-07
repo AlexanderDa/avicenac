@@ -4,9 +4,10 @@ import validator from 'validator'
 import Frame from '@/components/Frame.vue'
 import Empty from '@/components/Empty.vue'
 import DeletePromt from '@/components/DeletePromt.vue'
-import UserPageModel from '@/models/UserModel'
+import UserModel from '@/models/UserModel'
 import Crud from '@/views/Crud'
 import RoleModel from '@/models/RoleModel'
+import UserService from '@/services/UserService'
 
 @Component({
   name: 'UserPage',
@@ -16,7 +17,7 @@ import RoleModel from '@/models/RoleModel'
     DeletePromt
   }
 })
-export default class UserPageController extends Vue implements Crud<UserPageModel> {
+export default class UserPageController extends Vue implements Crud<UserModel> {
   /********************************************************
   *                      Attributes                       *
   ********************************************************/
@@ -28,10 +29,9 @@ export default class UserPageController extends Vue implements Crud<UserPageMode
   private pagination: any = {}
 
   // Element data
-  private elements: UserPageModel[] = []
+  private elements: UserModel[] = []
   private elementIndex: number = -1
-  private element: UserPageModel = new UserPageModel()
-  private roles: RoleModel[] = [{ id: 1, name: 'Administración' }, { id: 2, name: 'Médico' }, { id: 3, name: 'Enfermeria' }]
+  private element: UserModel = new UserModel()
 
   // Validations
   private rules: any = {
@@ -58,55 +58,73 @@ export default class UserPageController extends Vue implements Crud<UserPageMode
   }
 
   created (): void {
+    this.$store.dispatch('loadRoles')
     this.findElements()
   }
 
   /********************************************************
  *                    API Services                       *
  ********************************************************/
-  createElement (): void {
-    this.elements.push(this.element)
+  async createElement (): Promise<void> {
+    const service: UserService = new UserService()
+    await service.create(this.element)
+      .then((element: UserModel) => {
+        this.elements.push(element)
+      })
   }
-  findElements (): void {
-    this.elements = [
-      { id: 1, emailAddress: 'juan@gmail.com', isActive: false, username: 'juan', roleId: 1 },
-      { id: 2, emailAddress: 'pedro@gmail.com', isActive: true, username: 'pedro', roleId: 2 },
-      { id: 3, emailAddress: 'maria@gmail.com', isActive: true, username: 'maria', roleId: 1 },
-      { id: 4, emailAddress: 'marco@gmail.com', isActive: true, username: 'marco', roleId: 1 },
-      { id: 5, emailAddress: 'jose@gmail.com', isActive: true, username: 'jose', roleId: 1 }
-    ]
+
+  async findElements (): Promise<void> {
+    const service: UserService = new UserService()
+    await service.find()
+      .then((elements: UserModel[]) => {
+        this.elements = elements
+      })
   }
-  updateElement (): void {
-    Object.assign(this.elements[this.elementIndex], this.element)
+
+  async updateElement (): Promise<void> {
+    const service: UserService = new UserService()
+    await service.updateById(this.element)
+      .then(() => {
+        Object.assign(this.elements[this.elementIndex], this.element)
+      })
+      .catch(() => { })
   }
-  deleteElement (element: UserPageModel): void {
-    const index = this.elements.indexOf(element)
-    this.elements.splice(index, 1)
+
+  async deleteElement (element: UserModel): Promise<void> {
+    const service: UserService = new UserService()
+    await service.deleteById(element.id)
+      .then(() => {
+        const index = this.elements.indexOf(element)
+        this.elements.splice(index, 1)
+      })
+      .catch(() => { })
+  }
+
+  async submit (): Promise<void> {
+    if (this.elementIndex > -1) await this.updateElement()
+    else await this.createElement()
+    this.reset()
   }
 
   /********************************************************
- *                       Methods                         *
- ********************************************************/
+  *                       Methods                         *
+  ********************************************************/
 
-  toEditElement (element: UserPageModel): void {
+  toEditElement (element: UserModel): void {
     this.elementIndex = this.elements.indexOf(element)
     this.element = Object.assign({}, element)
     this.dialog = true
   }
-  submit (): void {
-    if (this.elementIndex > -1) this.updateElement()
-    else this.createElement()
-    this.reset()
-  }
+
   reset (): void {
     this.dialog = false
-    this.element = Object.assign({}, new UserPageModel())
+    this.element = Object.assign({}, new UserModel())
     this.elementIndex = -1
   }
 
   getRole (roleId: number): string {
     let role: string = ''
-    this.roles.forEach((element: RoleModel) => {
+    this.$store.state.RoleStore.list.forEach((element: RoleModel) => {
       if (element.id === roleId) { role = element.name }
     })
     return role
