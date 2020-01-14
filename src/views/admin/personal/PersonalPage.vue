@@ -207,7 +207,7 @@
                 <q-input
                   class="col col-xs-12"
                   v-model="element.regProfessional"
-                  :rules="rules.required"
+                  :rules="[]"
                   label="Registro profesional *"
                   outlined
                   dense

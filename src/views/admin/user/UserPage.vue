@@ -46,6 +46,15 @@
 
       <template v-slot:body-cell-action="props">
         <q-td :props="props" class="text-grey">
+          <q-btn
+            @click="sendWelcome(props.row.emailAddress)"
+            v-if="!props.row.confirmed"
+            icon="mail"
+            size="12px"
+            flat
+            round
+            dense
+          />
           <q-btn size="12px" flat round dense icon="edit" @click="toEditElement(props.row)" />
           <DeletePromt @onDelete="deleteElement(props.row)" />
         </q-td>

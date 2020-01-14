@@ -5,7 +5,7 @@ import Empty from '@/components/Empty.vue'
 import DeletePromt from '@/components/DeletePromt.vue'
 import SurgeryRoomModel from '@/models/SurgeryRoomModel'
 import Crud from '@/views/Crud'
-import SurgeryRoomService from '@/services/RurgeryRoomService'
+import SurgeryRoomService from '@/services/SurgeryRoomService'
 @Component({
   name: 'Surgeryroom',
   components: {

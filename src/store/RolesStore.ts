@@ -1,27 +1,26 @@
-import { StoreOptions } from 'vuex'
+import { VuexModule, Action, Mutation, Module } from 'vuex-module-decorators'
 import RoleModel from '@/models/RoleModel'
 import RoleService from '@/services/RoleService'
 
-const RoleStore: StoreOptions<{ list: RoleModel[] }> = {
-  state: {
-    list: []
-  },
-  actions: {
-    async loadRoles ({ state, commit }) {
-      const service: RoleService = new RoleService()
-      if (!(state.list.length > 0)) {
-        await service.find()
-          .then((list: RoleModel[]) => {
-            commit('LOAD_ROLES', list)
-          })
+@Module
+export default class RoleStore extends VuexModule {
+  private list: RoleModel[] = []
+
+  @Action({ commit: 'LOAD_ROLES' })
+  async loadRoles () {
+    const service: RoleService = new RoleService()
+    let list: RoleModel[] = []
+    try {
+      if (!(this.list.length > 0)) {
+        list = await service.find()
       }
+    } catch (err) {
     }
-  },
-  mutations: {
-    LOAD_ROLES (state, roles: RoleModel[]) {
-      state.list = roles
-    }
+    return list
+  }
+
+  @Mutation
+  LOAD_ROLES (roles: RoleModel[]) {
+    this.list = roles
   }
 }
-
-export default RoleStore

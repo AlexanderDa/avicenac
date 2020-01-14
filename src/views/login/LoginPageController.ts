@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import validator from 'validator'
 import AccountService from '@/services/AccountService'
+import Notify from '@/components/Notify'
 
 @Component({ name: 'LoginPage' })
 export default class LoginPageController extends Vue {
@@ -54,6 +55,10 @@ export default class LoginPageController extends Vue {
             this.$q.notify(notify)
             this.password = ''
             this.emailAddress = ''
+            break
+
+          case 'INACTIVE_ACCOUNT':
+            new Notify().warning('Cuenta sin activar', 'Por favor verifique su correo y active la cuenta')
             break
 
           default:

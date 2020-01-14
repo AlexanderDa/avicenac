@@ -1,13 +1,21 @@
 import Vue from 'vue'
 import HonoraryModel from '@/models/HonoraryModel'
-import Service from '@/services/Service'
+import Service, { API_URL } from '@/services/Service'
+import { Filter, encodeFilter } from '@/util'
 
-export default class HonoraryService extends Vue implements Service<HonoraryModel> {
+interface HonoraryFilter{
+   description?: string
+   value?: number
+   rate?: number
+   mps?: number
+}
+
+export default class HonoraryService extends Vue implements Service<HonoraryModel, HonoraryFilter> {
   async create (element: HonoraryModel): Promise<HonoraryModel> {
     let created: HonoraryModel = new HonoraryModel()
     try {
       const res: any = await this.$http.post(
-        `${process.env.VUE_APP_API_URL}/honorary`,
+        `${API_URL}/honorary`,
         this.formBody(element))
       created = res.body
     } catch (err) {
@@ -20,7 +28,7 @@ export default class HonoraryService extends Vue implements Service<HonoraryMode
     let total: number = 0
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/honoraries/count`
+        `${API_URL}/honoraries/count`
       )
       total = res.body.count
     } catch (err) {
@@ -29,11 +37,11 @@ export default class HonoraryService extends Vue implements Service<HonoraryMode
     return total
   }
 
-  async find (): Promise<HonoraryModel[]> {
+  async find (filter?: Filter<HonoraryFilter>): Promise<HonoraryModel[]> {
     let list: HonoraryModel[] = []
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/honoraries`
+        `${API_URL}/honoraries${encodeFilter(filter)}`
       )
       list = res.body
     } catch (err) {
@@ -46,7 +54,7 @@ export default class HonoraryService extends Vue implements Service<HonoraryMode
     let found: HonoraryModel = new HonoraryModel()
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/honorary/${id}`
+        `${API_URL}/honorary/${id}`
       )
       found = res.body
     } catch (err) {
@@ -59,7 +67,7 @@ export default class HonoraryService extends Vue implements Service<HonoraryMode
     let updated: boolean = false
     try {
       const res: any = await this.$http.patch(
-        `${process.env.VUE_APP_API_URL}/honorary/${element.id}`,
+        `${API_URL}/honorary/${element.id}`,
         this.formBody(element)
       )
       updated = res.ok
@@ -73,7 +81,7 @@ export default class HonoraryService extends Vue implements Service<HonoraryMode
     let success: boolean = false
     try {
       const res: any = await this.$http.delete(
-        `${process.env.VUE_APP_API_URL}/honorary/${id}`
+        `${API_URL}/honorary/${id}`
       )
       success = res.ok
     } catch (err) {

@@ -1,13 +1,19 @@
 import Vue from 'vue'
+import Service, { API_URL } from '@/services/Service'
 import SurgeryRoomModel from '@/models/SurgeryRoomModel'
-import Service from '@/services/Service'
+import { Filter, encodeFilter } from '@/util'
 
-export default class SurgeryRoomService extends Vue implements Service<SurgeryRoomModel> {
+interface SurgeryRoomFilter {
+  name?: string
+}
+
+export default class SurgeryRoomService extends Vue
+  implements Service<SurgeryRoomModel, SurgeryRoomFilter> {
   async create (element: SurgeryRoomModel): Promise<SurgeryRoomModel> {
     let created: SurgeryRoomModel = new SurgeryRoomModel()
     try {
       const res: any = await this.$http.post(
-        `${process.env.VUE_APP_API_URL}/surgeryroom`,
+        `${API_URL}/surgeryroom`,
         this.formBody(element))
       created = res.body
     } catch (err) {
@@ -20,7 +26,7 @@ export default class SurgeryRoomService extends Vue implements Service<SurgeryRo
     let total: number = 0
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/surgeryrooms/count`
+        `${API_URL}/surgeryrooms/count`
       )
       total = res.body.count
     } catch (err) {
@@ -29,11 +35,11 @@ export default class SurgeryRoomService extends Vue implements Service<SurgeryRo
     return total
   }
 
-  async find (): Promise<SurgeryRoomModel[]> {
+  async find (filter?: Filter<SurgeryRoomFilter>): Promise<SurgeryRoomModel[]> {
     let list: SurgeryRoomModel[] = []
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/surgeryrooms`
+        `${API_URL}/surgeryrooms${encodeFilter(filter)}`
       )
       list = res.body
     } catch (err) {
@@ -46,7 +52,7 @@ export default class SurgeryRoomService extends Vue implements Service<SurgeryRo
     let found: SurgeryRoomModel = new SurgeryRoomModel()
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/surgeryroom/${id}`
+        `${API_URL}/surgeryroom/${id}`
       )
       found = res.body
     } catch (err) {
@@ -59,7 +65,7 @@ export default class SurgeryRoomService extends Vue implements Service<SurgeryRo
     let updated: boolean = false
     try {
       const res: any = await this.$http.patch(
-        `${process.env.VUE_APP_API_URL}/surgeryroom/${element.id}`,
+        `${API_URL}/surgeryroom/${element.id}`,
         this.formBody(element)
       )
       updated = res.ok
@@ -73,7 +79,7 @@ export default class SurgeryRoomService extends Vue implements Service<SurgeryRo
     let success: boolean = false
     try {
       const res: any = await this.$http.delete(
-        `${process.env.VUE_APP_API_URL}/surgeryroom/${id}`
+        `${API_URL}/surgeryroom/${id}`
       )
       success = res.ok
     } catch (err) {

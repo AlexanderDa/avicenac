@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import RootRoutes from '@/router/RootRoutes'
 import NotFoundRoutes from '@/router/NotFoundRoutes'
 import LoginRoutes from '@/router/LoginRoutes'
+import ActivationRoutes from '@/router/ActivationRoutes'
 import AdminRoutes from '@/router/AdminRoutes'
 
 Vue.use(VueRouter)
@@ -11,6 +12,7 @@ const routes = [
   RootRoutes,
   NotFoundRoutes,
   LoginRoutes,
+  ActivationRoutes,
   AdminRoutes
 ]
 

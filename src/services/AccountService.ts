@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { API_URL } from '@/services/Service'
 import UserModel from '@/models/UserModel'
 
 export default class AccountService extends Vue {
@@ -6,8 +7,21 @@ export default class AccountService extends Vue {
     let token: string
     try {
       const res: any = await this.$http.post(
-        `${process.env.VUE_APP_API_URL}/account/login`,
+        `${API_URL}/account/login`,
         { email, password })
+      token = `Bearer ${res.body.token}`
+    } catch (err) {
+      throw err
+    }
+    return token
+  }
+
+  async activate (emailAddress: string, password: string, activationCode: string): Promise<string> {
+    let token: string
+    try {
+      const res: any = await this.$http.put(
+        `${API_URL}/account/activation`,
+        { emailAddress, activationCode, password })
       token = `Bearer ${res.body.token}`
     } catch (err) {
       throw err
@@ -19,7 +33,7 @@ export default class AccountService extends Vue {
     let user: UserModel = new UserModel()
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/account/me`
+        `${API_URL}/account/me`
       )
       user = res.body
     } catch (err) {
@@ -32,7 +46,7 @@ export default class AccountService extends Vue {
     let user: UserModel = new UserModel()
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/account/${emailAddress}`
+        `${API_URL}/account/${emailAddress}`
       )
       user = res.body
     } catch (err) {

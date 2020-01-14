@@ -1,5 +1,12 @@
 <template>
-  <WebAppLayout :sideBarItems="menuItems" ><router-view/></WebAppLayout>
+  <div>
+    <WebAppLayout v-show="platform==='web'" :sideBarItems="menuItems">
+      <router-view />
+    </WebAppLayout>
+    <DesktopAppLayout v-show="platform==='desktop'" :sideBarItems="menuItems">
+      <router-view />
+    </DesktopAppLayout>
+  </div>
 </template>
 
 <script lang="ts">

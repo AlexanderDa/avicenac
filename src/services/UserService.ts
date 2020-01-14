@@ -1,15 +1,21 @@
 import Vue from 'vue'
 import UserModel from '@/models/UserModel'
-import Service from '@/services/Service'
-import moment from 'moment'
-moment.locale('es')
+import Service, { API_URL } from '@/services/Service'
+import { Filter, encodeFilter } from '@/util'
 
-export default class UserService extends Vue implements Service<UserModel> {
+interface UserFilter{
+  emailAddress?: string;
+  isActive?: boolean;
+  confirmed?: boolean
+  roleId?: number;
+}
+
+export default class UserService extends Vue implements Service<UserModel, UserFilter> {
   async create (element: UserModel): Promise<UserModel> {
     let created: UserModel = new UserModel()
     try {
       const res: any = await this.$http.post(
-        `${process.env.VUE_APP_API_URL}/user`,
+        `${API_URL}/user`,
         this.formBody(element))
       created = res.body
     } catch (err) {
@@ -22,7 +28,7 @@ export default class UserService extends Vue implements Service<UserModel> {
     let total: number = 0
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/users/count`
+        `${API_URL}/users/count`
       )
       total = res.body.count
     } catch (err) {
@@ -31,11 +37,11 @@ export default class UserService extends Vue implements Service<UserModel> {
     return total
   }
 
-  async find (): Promise<UserModel[]> {
+  async find (filter?: Filter<UserFilter>): Promise<UserModel[]> {
     let list: UserModel[] = []
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/users`
+        `${API_URL}/users${encodeFilter(filter)}`
       )
       list = res.body
     } catch (err) {
@@ -48,7 +54,7 @@ export default class UserService extends Vue implements Service<UserModel> {
     let found: UserModel = new UserModel()
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/user/${id}`
+        `${API_URL}/user/${id}`
       )
       found = res.body
     } catch (err) {
@@ -61,7 +67,7 @@ export default class UserService extends Vue implements Service<UserModel> {
     let updated: boolean = false
     try {
       const res: any = await this.$http.patch(
-        `${process.env.VUE_APP_API_URL}/user/${element.id}`,
+        `${API_URL}/user/${element.id}`,
         this.formBody(element)
       )
       updated = res.ok
@@ -75,7 +81,7 @@ export default class UserService extends Vue implements Service<UserModel> {
     let success: boolean = false
     try {
       const res: any = await this.$http.delete(
-        `${process.env.VUE_APP_API_URL}/user/${id}`
+        `${API_URL}/user/${id}`
       )
       success = res.ok
     } catch (err) {

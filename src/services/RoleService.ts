@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { API_URL } from '@/services/Service'
 import RoleModel from '@/models/RoleModel'
 
 export default class RoleService extends Vue {
@@ -6,7 +7,7 @@ export default class RoleService extends Vue {
     let list: RoleModel[] = []
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/roles`
+        `${API_URL}/roles`
       )
       list = res.body
     } catch (err) {

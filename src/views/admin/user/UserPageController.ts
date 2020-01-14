@@ -8,6 +8,8 @@ import UserModel from '@/models/UserModel'
 import Crud from '@/views/Crud'
 import RoleModel from '@/models/RoleModel'
 import UserService from '@/services/UserService'
+import EmailService from '@/services/EmailService'
+import Notify from '@/components/Notify'
 
 @Component({
   name: 'UserPage',
@@ -57,14 +59,14 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
     ]
   }
 
-  created (): void {
-    this.$store.dispatch('loadRoles')
-    this.findElements()
+  async created (): Promise<void> {
+    await this.$store.dispatch('loadRoles')
+    await this.findElements()
   }
 
   /********************************************************
- *                    API Services                       *
- ********************************************************/
+  *                    API Services                       *
+  ********************************************************/
   async createElement (): Promise<void> {
     const service: UserService = new UserService()
     await service.create(this.element)
@@ -104,6 +106,34 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
     if (this.elementIndex > -1) await this.updateElement()
     else await this.createElement()
     this.reset()
+  }
+
+  async sendWelcome (email: string): Promise<void> {
+    const service: EmailService = new EmailService()
+    await service.welcome(email)
+      .then((res: boolean) => {
+        if (res) { new Notify().success('Correo enviado.', `Mensaje de bienvenido para ${email}`) }
+      })
+      .catch((err) => {
+        const error: string = err.body.error.message
+        switch (error) {
+          case 'NO_PRERSONAL':
+            new Notify().warning('El usuario no tiene un profesional relacionado.')
+            break
+
+          case 'ACTIVE_ACCOUNT':
+            new Notify().error('La cuenta ya está activada.')
+            break
+
+          case 'BAD_ACCOUNT':
+            new Notify().error('La cuenta no existe.')
+            break
+
+          default:
+            new Notify().error('ERROR', 'No se pudo enviar el correo.')
+            break
+        }
+      })
   }
 
   /********************************************************

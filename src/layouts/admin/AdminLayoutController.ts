@@ -1,11 +1,15 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
-import WebAppLayout from '@/components/WebAppLayout.vue'
+import WebAppLayout from '@/components/app/WebAppLayout.vue'
+import DesktopAppLayout from '@/components/app/DesktopAppLayout.vue'
 import { ListRouterItem } from '@/util'
 
 @Component({
   name: 'AdminLayout',
-  components: { WebAppLayout }
+  components: {
+    WebAppLayout,
+    DesktopAppLayout
+  }
 })
 export default class AdminLayoutController extends Vue {
   private platform: string | null = null
@@ -13,6 +17,7 @@ export default class AdminLayoutController extends Vue {
     { icon: 'dashboard', title: 'Dashboard', page: 'DashboardPage' },
     { icon: 'account_circle', title: 'Usuarios', page: 'UserPage' },
     { icon: 'work', title: 'Personal', page: 'PersonalPage' },
+    { icon: 'event_note', title: 'Reservación', page: 'ReservationPage' },
     { icon: 'business', title: 'Hospital', page: 'HospitalPage' }
   ]
 

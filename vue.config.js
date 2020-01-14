@@ -6,6 +6,7 @@ module.exports = {
     }
   },
   transpileDependencies: [
-    'quasar'
+    'quasar',
+    'vuex-module-decorators'
   ]
 }

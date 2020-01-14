@@ -1,15 +1,27 @@
 import Vue from 'vue'
+import Service, { API_URL } from '@/services/Service'
 import PersonalModel from '@/models/PersonalModel'
-import Service from '@/services/Service'
-import moment from 'moment'
-moment.locale('es')
+import { Filter, encodeFilter } from '@/util'
 
-export default class PersonalService extends Vue implements Service<PersonalModel> {
+interface PersonalFilter{
+  lastName: string;
+  firstName: string;
+  dni: string ;
+  passport: string ;
+  telephone: string ;
+  mobile: string ;
+  regProfessional: string ;
+  emailAddress: string;
+  address: string;
+  isHired: boolean ;
+}
+
+export default class PersonalService extends Vue implements Service<PersonalModel, PersonalFilter> {
   async create (element: PersonalModel): Promise<PersonalModel> {
     let created: PersonalModel = new PersonalModel()
     try {
       const res: any = await this.$http.post(
-        `${process.env.VUE_APP_API_URL}/personal`,
+        `${API_URL}/personal`,
         this.formBody(element))
       created = res.body
     } catch (err) {
@@ -22,7 +34,7 @@ export default class PersonalService extends Vue implements Service<PersonalMode
     let total: number = 0
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/personals/count`
+        `${API_URL}/personals/count`
       )
       total = res.body.count
     } catch (err) {
@@ -31,11 +43,11 @@ export default class PersonalService extends Vue implements Service<PersonalMode
     return total
   }
 
-  async find (): Promise<PersonalModel[]> {
+  async find (filter?: Filter<PersonalFilter>): Promise<PersonalModel[]> {
     let list: PersonalModel[] = []
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/personals`
+        `${API_URL}/personals${encodeFilter(filter)}`
       )
       list = res.body
     } catch (err) {
@@ -48,7 +60,7 @@ export default class PersonalService extends Vue implements Service<PersonalMode
     let found: PersonalModel = new PersonalModel()
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/personal/${id}`
+        `${API_URL}/personal/${id}`
       )
       found = res.body
     } catch (err) {
@@ -61,7 +73,7 @@ export default class PersonalService extends Vue implements Service<PersonalMode
     let updated: boolean = false
     try {
       const res: any = await this.$http.patch(
-        `${process.env.VUE_APP_API_URL}/personal/${element.id}`,
+        `${API_URL}/personal/${element.id}`,
         this.formBody(element)
       )
       updated = res.ok
@@ -75,7 +87,7 @@ export default class PersonalService extends Vue implements Service<PersonalMode
     let success: boolean = false
     try {
       const res: any = await this.$http.delete(
-        `${process.env.VUE_APP_API_URL}/personal/${id}`
+        `${API_URL}/personal/${id}`
       )
       success = res.ok
     } catch (err) {

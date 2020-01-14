@@ -1,15 +1,23 @@
 import Vue from 'vue'
 import PeriodModel from '@/models/PeriodModel'
-import Service from '@/services/Service'
+import Service, { API_URL } from '@/services/Service'
 import moment from 'moment'
+import { Filter, encodeFilter } from '@/util'
 moment.locale('es')
 
-export default class PeriodService extends Vue implements Service<PeriodModel> {
+interface PeriodFilter {
+  startDate?: string
+  finishDate?: string
+  label?: string
+  isActive?: boolean;
+}
+
+export default class PeriodService extends Vue implements Service<PeriodModel, PeriodFilter> {
   async create (element: PeriodModel): Promise<PeriodModel> {
     let created: PeriodModel = new PeriodModel()
     try {
       const res: any = await this.$http.post(
-        `${process.env.VUE_APP_API_URL}/period`,
+        `${API_URL}/period`,
         this.formBody(element))
       created = res.body
     } catch (err) {
@@ -22,7 +30,7 @@ export default class PeriodService extends Vue implements Service<PeriodModel> {
     let total: number = 0
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/periods/count`
+        `${API_URL}/periods/count`
       )
       total = res.body.count
     } catch (err) {
@@ -31,11 +39,11 @@ export default class PeriodService extends Vue implements Service<PeriodModel> {
     return total
   }
 
-  async find (): Promise<PeriodModel[]> {
+  async find (filter?: Filter<PeriodFilter>): Promise<PeriodModel[]> {
     let list: PeriodModel[] = []
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/periods`
+        `${API_URL}/periods${encodeFilter(filter)}`
       )
       list = res.body
     } catch (err) {
@@ -48,7 +56,7 @@ export default class PeriodService extends Vue implements Service<PeriodModel> {
     let found: PeriodModel = new PeriodModel()
     try {
       const res: any = await this.$http.get(
-        `${process.env.VUE_APP_API_URL}/period/${id}`
+        `${API_URL}/period/${id}`
       )
       found = res.body
     } catch (err) {
@@ -61,7 +69,7 @@ export default class PeriodService extends Vue implements Service<PeriodModel> {
     let updated: boolean = false
     try {
       const res: any = await this.$http.patch(
-        `${process.env.VUE_APP_API_URL}/period/${element.id}`,
+        `${API_URL}/period/${element.id}`,
         this.formBody(element)
       )
       updated = res.ok
@@ -75,7 +83,7 @@ export default class PeriodService extends Vue implements Service<PeriodModel> {
     let success: boolean = false
     try {
       const res: any = await this.$http.delete(
-        `${process.env.VUE_APP_API_URL}/period/${id}`
+        `${API_URL}/period/${id}`
       )
       success = res.ok
     } catch (err) {
