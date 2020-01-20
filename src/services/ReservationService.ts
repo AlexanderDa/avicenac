@@ -2,6 +2,7 @@ import Vue from 'vue'
 import ReservationModel from '@/models/ReservationModel'
 import Service, { API_URL } from '@/services/Service'
 import { Filter, encodeFilter } from '@/util'
+import moment from 'moment'
 
 interface ReservationFilter {
   creationDate: Date
@@ -95,13 +96,13 @@ export default class ReservationService extends Vue
 
   formBody (element: ReservationModel): ReservationModel {
     let reservation: ReservationModel = new ReservationModel()
-    // reservation.startDate = moment(element.startDate, 'YYYY/MM').format()
-    reservation.creationDate = element.creationDate
-    reservation.reservationDate = element.reservationDate
+    reservation.reservationDate = moment(element.reservationDate).format()
     reservation.doctorId = element.doctorId
     reservation.honoraryId = element.honoraryId
     reservation.periodId = element.periodId
     reservation.surgeryroomId = element.surgeryroomId
+    reservation.procedureId = element.procedureId
+    reservation.patientId = element.patientId
     return reservation
   }
 }

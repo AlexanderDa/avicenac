@@ -16,6 +16,7 @@ export default class AdminLayoutController extends Vue {
   private menuItems: ListRouterItem[] = [
     { icon: 'dashboard', title: 'Dashboard', page: 'DashboardPage' },
     { icon: 'account_circle', title: 'Usuarios', page: 'UserPage' },
+    { icon: 'person', title: 'Pacientes', page: 'PatientPage' },
     { icon: 'work', title: 'Personal', page: 'PersonalPage' },
     { icon: 'event_note', title: 'Reservación', page: 'ReservationPage' },
     { icon: 'business', title: 'Hospital', page: 'HospitalPage' }

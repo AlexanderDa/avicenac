@@ -1,7 +1,7 @@
 <template>
   <div>
     <q-table
-      card-container-class="table-single-card"
+      :virtual-scroll-sticky-start="10"
       :pagination.sync="pagination"
       :rows-per-page-options="[0]"
       :data="elements"
@@ -37,35 +37,24 @@
           <DeletePromt @onDelete="deleteElement(props.row)" />
         </q-td>
       </template>
+
       <template v-slot:no-data>
         <Empty class="full-width row flex-center" :title="(search)?'Sin resultados':'Sin datos'" />
       </template>
     </q-table>
 
     <q-dialog v-model="dialog" persistent>
-      <Frame
-        :title="elementIndex!==-1?'Editar':'Nuevo'"
-        icon="airline_seat_flat_angled"
-        width="300"
-      >
+      <Frame :title="elementIndex!==-1?'Editar':'Nuevo'" icon="event" width="300">
         <q-btn slot="action" flat round dense icon="close" @click="reset()" />
         <q-form slot="content" @submit="submit" class="q-gutter-md">
           <q-input
+            v-model="element.name"
+            label="Procedimiento *"
+            :rules="rules.name"
             outlined
             dense
-            v-model="element.name"
-            label="Nombre *"
             lazy-rules
-            :rules="rules.name"
           />
-          <q-item>
-            <q-item-section>
-              <q-item-label>{{element.isActive?'Quirófano activo':'Quirónano inactivo'}}</q-item-label>
-            </q-item-section>
-            <q-item-section avatar>
-              <q-toggle color="secondary" v-model="element.isActive" />
-            </q-item-section>
-          </q-item>
           <div>
             <q-btn label="guardar" type="submit" color="secondary" />
             <q-btn label="limpiar" type="reset" color="secondary" flat class="q-ml-sm" />
@@ -77,6 +66,6 @@
 </template>
 
 <script lang="ts">
-import SurgeryroomPage from './SurgeryroomController'
-export default SurgeryroomPage
+import ProcedureController from './SurgicalProcedureController'
+export default ProcedureController
 </script>

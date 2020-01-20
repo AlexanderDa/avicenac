@@ -13,6 +13,8 @@ export default class RoleStore extends VuexModule {
     try {
       if (!(this.list.length > 0)) {
         list = await service.find()
+      } else {
+        list = this.list
       }
     } catch (err) {
     }

@@ -1,20 +1,24 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import { Watch } from 'vue-property-decorator'
 import Frame from '@/components/Frame.vue'
 import Empty from '@/components/Empty.vue'
 import DeletePromt from '@/components/DeletePromt.vue'
-import SurgeryRoomModel from '@/models/SurgeryRoomModel'
+import SurgicalProcedureModel from '@/models/SurgicalProcedureModel'
 import Crud from '@/views/Crud'
-import SurgeryRoomService from '@/services/SurgeryRoomService'
+import moment from 'moment'
+import SurgicalProcedureService from '@/services/SurgicalProcedureService'
+moment.locale('es')
+
 @Component({
-  name: 'Surgeryroom',
+  name: 'SurgicalProcedure',
   components: {
     Frame,
     Empty,
     DeletePromt
   }
 })
-export default class SurgeryroomController extends Vue implements Crud<SurgeryRoomModel> {
+export default class SurgicalProcedureController extends Vue implements Crud<SurgicalProcedureModel> {
   /********************************************************
   *                      Attributes                       *
   ********************************************************/
@@ -26,9 +30,9 @@ export default class SurgeryroomController extends Vue implements Crud<SurgeryRo
   private pagination: any = {}
 
   // Element data
-  private elements: SurgeryRoomModel[] = []
+  private elements: SurgicalProcedureModel[] = []
   private elementIndex: number = -1
-  private element: SurgeryRoomModel = new SurgeryRoomModel()
+  private element: SurgicalProcedureModel = new SurgicalProcedureModel()
 
   // Validations
   private rules: any = {
@@ -40,40 +44,43 @@ export default class SurgeryroomController extends Vue implements Crud<SurgeryRo
   /********************************************************
   *                     Initializable                     *
   ********************************************************/
-  beforeMount (): void {
+
+  beforeMount () {
     this.pagination = { rowsPerPage: 0 }
     this.headers = [
-      { name: 'name', field: 'name', label: 'Nombre', align: 'left', sortable: true },
-      { name: 'isActive', field: 'isActive', label: 'Estado', align: 'center', sortable: true },
+      { name: 'name', field: 'name', label: 'Procedimiento', align: 'left', sortable: true },
       { name: 'action', field: 'action', label: 'Acciones', align: 'center' }
     ]
   }
+
   created (): void {
     this.findElements()
   }
 
   /********************************************************
- *                    API Services                       *
- ********************************************************/
+  *                    API Services                       *
+  ********************************************************/
+
   async createElement (): Promise<void> {
-    const service: SurgeryRoomService = new SurgeryRoomService()
+    const service: SurgicalProcedureService = new SurgicalProcedureService()
     // this.thereActives()
     await service.create(this.element)
-      .then((element: SurgeryRoomModel) => {
+      .then((element: SurgicalProcedureModel) => {
         this.elements.push(element)
       })
   }
 
   async findElements (): Promise<void> {
-    const service: SurgeryRoomService = new SurgeryRoomService()
-    await service.find()
-      .then((elements: SurgeryRoomModel[]) => {
+    const service: SurgicalProcedureService = new SurgicalProcedureService()
+    await service.find({ order: ['name asc'] })
+      .then((elements: SurgicalProcedureModel[]) => {
         this.elements = elements
       })
   }
 
   async updateElement (): Promise<void> {
-    const service: SurgeryRoomService = new SurgeryRoomService()
+    const service: SurgicalProcedureService = new SurgicalProcedureService()
+    // this.thereActives()
     await service.updateById(this.element)
       .then(() => {
         Object.assign(this.elements[this.elementIndex], this.element)
@@ -81,8 +88,8 @@ export default class SurgeryroomController extends Vue implements Crud<SurgeryRo
       .catch(() => { })
   }
 
-  async deleteElement (element: SurgeryRoomModel): Promise<void> {
-    const service: SurgeryRoomService = new SurgeryRoomService()
+  async deleteElement (element: SurgicalProcedureModel): Promise<void> {
+    const service: SurgicalProcedureService = new SurgicalProcedureService()
     await service.deleteById(element.id)
       .then(() => {
         const index = this.elements.indexOf(element)
@@ -98,10 +105,10 @@ export default class SurgeryroomController extends Vue implements Crud<SurgeryRo
   }
 
   /********************************************************
- *                       Methods                         *
- ********************************************************/
+  *                       Methods                         *
+  ********************************************************/
 
-  toEditElement (element: SurgeryRoomModel): void {
+  toEditElement (element: SurgicalProcedureModel): void {
     this.elementIndex = this.elements.indexOf(element)
     this.element = Object.assign({}, element)
     this.dialog = true
@@ -109,7 +116,7 @@ export default class SurgeryroomController extends Vue implements Crud<SurgeryRo
 
   reset (): void {
     this.dialog = false
-    this.element = Object.assign({}, new SurgeryRoomModel())
+    this.element = Object.assign({}, new SurgicalProcedureModel())
     this.elementIndex = -1
   }
 }

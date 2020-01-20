@@ -13,6 +13,10 @@ import PeriodService from '@/services/PeriodService'
 import PeriodModel from '@/models/PeriodModel'
 import SurgeryRoomModel from '@/models/SurgeryRoomModel'
 import SurgeryRoomService from '@/services/SurgeryRoomService'
+import SurgicalProcedureModel from '@/models/SurgicalProcedureModel'
+import SurgicalProcedureService from '@/services/SurgicalProcedureService'
+import PatientService from '@/services/PatientService'
+import PatientModel from '@/models/PatientModel'
 
 @Component({
   name: 'ReservationPage',
@@ -30,6 +34,7 @@ export default class ReservationPageController extends Vue implements Crud<Reser
   // GUI
   private dialog: boolean = false
   private view: string = 'week'
+  private patientCredential: string = ''
   private selectedDate: string = ''
   private dateMenu: boolean = false
 
@@ -39,12 +44,11 @@ export default class ReservationPageController extends Vue implements Crud<Reser
   private element: ReservationModel = new ReservationModel()
   private periods: PeriodModel[] = []
   private surgeryRooms: SurgeryRoomModel[] = []
+  private procedures: SurgicalProcedureModel[] = []
+  private patient: PatientModel = new PatientModel()
 
   // Validations
   private rules: any = {
-    name: [
-      (v: string) => (v && v.length > 0) || 'Atributo requerido.'
-    ],
     date: [
       (v: string) => (v && v.length > 0) || 'Atributo requerido.',
       (v: string) => moment(v, 'YYYY/MM/DD HH:mm', true).isValid() || 'Fecha no valida.'
@@ -59,10 +63,11 @@ export default class ReservationPageController extends Vue implements Crud<Reser
     // this.selectedDate = moment(new Date()).format('YYYY/MM/DD').toString()
   }
 
-  created (): void {
-    this.findPeriods()
-    this.findSurgeryRooms()
-    this.findElements()
+  async created (): Promise<void> {
+    await this.findPeriods()
+    await this.findSurgeryRooms()
+    await this.findSurgicalProcedures()
+    await this.findElements()
   }
 
   /********************************************************
@@ -121,9 +126,26 @@ export default class ReservationPageController extends Vue implements Crud<Reser
 
   async findSurgeryRooms (): Promise<void> {
     const service: SurgeryRoomService = new SurgeryRoomService()
-    await service.find()
+    await service.find({ where: { isActive: true } })
       .then((elements: SurgeryRoomModel[]) => {
         this.surgeryRooms = elements
+      })
+  }
+
+  async findSurgicalProcedures (): Promise<void> {
+    const service: SurgicalProcedureService = new SurgicalProcedureService()
+    await service.find({ order: ['name asc'] })
+      .then((elements: SurgicalProcedureModel[]) => {
+        this.procedures = elements
+      })
+  }
+
+  async findPatient (): Promise<void> {
+    const service: PatientService = new PatientService()
+    service.findByCredentials(this.patientCredential)
+      .then((patient: PatientModel) => {
+        this.patient = patient
+        this.element.patientId = patient.id
       })
   }
 
@@ -134,7 +156,8 @@ export default class ReservationPageController extends Vue implements Crud<Reser
   onCellClicked (day: any): void {
     this.dialog = true
     if (this.periods.length === 1) { this.element.periodId = this.periods[0].id }
-    this.element.reservationDate = day.date + ' ' + day.time.split(':')[0] + ':00'
+    this.element.reservationDate = moment(day.date + ' ' + day.time.split(':')[0])
+      .format('YYYY/MM/DD HH:mm')
   }
 
   /********************************************************

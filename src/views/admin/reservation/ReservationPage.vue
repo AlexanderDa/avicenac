@@ -1,5 +1,5 @@
 <template>
-  <div class=" calendar-container">
+  <div class="calendar-container">
     <q-toolbar class="shadow-1 bg-white">
       <q-btn round flat color="secondary" icon="event">
         <q-menu v-model="dateMenu" fit anchor="top left" self="bottom left">
@@ -67,27 +67,58 @@
       </q-btn-dropdown>
       <q-btn @click="dialog=true" color="secondary" icon="add" flat round />
     </q-toolbar>
-    <q-scroll-area style="">
+    <q-scroll-area style>
       <QCalendar
-      transition-prev="slide-right"
-      transition-next="slide-left"
-      @click:interval="onCellClicked"
-      @click:time="onCellClicked"
-      @click:day="onCellClicked"
-      @click:week="onCellClicked"
-      v-model="selectedDate"
-      locale="es-ec"
-      ref="calendar"
-      :view="view"
-      hour24-format
-      animated
-    />
+        transition-prev="slide-right"
+        transition-next="slide-left"
+        @click:interval="onCellClicked"
+        @click:time="onCellClicked"
+        @click:day="onCellClicked"
+        @click:week="onCellClicked"
+        v-model="selectedDate"
+        locale="es-ec"
+        ref="calendar"
+        :view="view"
+        hour24-format
+        animated
+      />
     </q-scroll-area>
     <q-dialog v-model="dialog" persistent>
       <Frame :title="elementIndex!==-1?'Editar':'Nuevo'" icon="event" width="300">
         <q-btn slot="action" flat round dense icon="close" @click="reset()" />
         <q-form slot="content" @submit="submit" class="q-gutter-md">
+          <q-input
+            placeholder="Cédula o pasaporte"
+            @keyup.space="findPatient()"
+            v-model="patientCredential"
+            :rules="[
+              v => element.patientId || 'Paciente requerido.'
+            ]"
+            label="Paciente"
+            mask="##########"
+            unmasked-value
+            bottom-slots
+            clearable
+            outlined
+            dense
+          >
+            <template
+              v-slot:hint
+            >{{(patient.createdAt)?`${patient.lastName} ${patient.firstName}`:'Sin paciente'}}</template>
+            <template v-slot:after>
+              <q-btn
+                style="margin-left:-7px;height:100%;"
+                color="secondary"
+                icon="search"
+                @click="findPatient()"
+              />
+            </template>
+          </q-input>
+
           <q-select
+            :rules="[
+              v => element.periodId || 'Periodo requerido.'
+            ]"
             v-model="element.periodId"
             label="Periodo *"
             :options="periods"
@@ -101,10 +132,29 @@
           />
 
           <q-select
+            :rules="[
+              v => element.surgeryroomId || 'Quirófano requerido.'
+            ]"
             v-model="element.surgeryroomId"
             label="Quirófano *"
             :options="surgeryRooms"
             behavior="menu"
+            option-value="id"
+            option-label="name"
+            map-options
+            emit-value
+            outlined
+            dense
+          />
+
+          <q-select
+            :rules="[
+              v => element.procedureId || 'Procedimiento requerido.'
+            ]"
+            v-model="element.procedureId"
+            label="Procedimiento *"
+            :options="procedures"
+            behavior="dialog"
             option-value="id"
             option-label="name"
             map-options
@@ -124,6 +174,7 @@
             lazy-rules
             :hint="reservationDateLabel"
           />
+          {{element}}
           <div>
             <q-btn label="guardar" type="submit" color="secondary" />
             <q-btn label="limpiar" type="reset" color="secondary" flat class="q-ml-sm" />

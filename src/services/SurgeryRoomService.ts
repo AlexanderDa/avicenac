@@ -4,7 +4,8 @@ import SurgeryRoomModel from '@/models/SurgeryRoomModel'
 import { Filter, encodeFilter } from '@/util'
 
 interface SurgeryRoomFilter {
-  name?: string
+  name?: string,
+  isActive?: boolean
 }
 
 export default class SurgeryRoomService extends Vue
@@ -91,6 +92,7 @@ export default class SurgeryRoomService extends Vue
   formBody (element: SurgeryRoomModel): SurgeryRoomModel {
     let surgeryroom: SurgeryRoomModel = new SurgeryRoomModel()
     surgeryroom.name = element.name
+    surgeryroom.isActive = element.isActive
     return surgeryroom
   }
 }
