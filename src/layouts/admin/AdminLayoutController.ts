@@ -14,7 +14,7 @@ import { ListRouterItem } from '@/util'
 export default class AdminLayoutController extends Vue {
   private platform: string | null = null
   private menuItems: ListRouterItem[] = [
-    // { icon: 'dashboard', title: 'Dashboard', page: 'DashboardPage' },
+    { icon: 'dashboard', title: 'Dashboard', page: 'DashboardPage' },
     { icon: 'fas fa-user-circle', title: 'Usuarios', page: 'UserPage' },
     { icon: 'fas fa-user-injured', title: 'Pacientes', page: 'PatientPage' },
     { icon: 'fas fa-user-md', title: 'Doctores', page: 'DoctorPage' },
