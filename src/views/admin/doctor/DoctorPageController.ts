@@ -5,22 +5,22 @@ import validator from 'validator'
 import Frame from '@/components/Frame.vue'
 import Empty from '@/components/Empty.vue'
 import DeletePromt from '@/components/DeletePromt.vue'
-import PatientModel from '@/models/PatientModel'
+import DoctorModel from '@/models/DoctorModel'
 import Crud from '@/views/Crud'
 import RoleModel from '@/models/RoleModel'
-import PatientService from '@/services/PatientService'
-import EmailService from '@/services/EmailService'
+import DoctorService from '@/services/DoctorService'
 import Notify from '@/components/Notify'
+import PersonalService from '@/services/PersonalService'
 
 @Component({
-  name: 'PatientPage',
+  name: 'DoctorPage',
   components: {
     Frame,
     Empty,
     DeletePromt
   }
 })
-export default class PatientPageController extends Vue implements Crud<PatientModel> {
+export default class DoctorPageController extends Vue implements Crud<DoctorModel> {
   /********************************************************
   *                      Attributes                       *
   ********************************************************/
@@ -30,11 +30,12 @@ export default class PatientPageController extends Vue implements Crud<PatientMo
   private search: string = ''
   private headers: any[] = []
   private pagination: any = {}
+  private personalCredential: string = ''
 
   // Element data
-  private elements: PatientModel[] = []
+  private elements: DoctorModel[] = []
   private elementIndex: number = -1
-  private element: PatientModel = new PatientModel()
+  private element: DoctorModel = new DoctorModel()
 
   // Validations
   private rules: any = {
@@ -63,10 +64,6 @@ export default class PatientPageController extends Vue implements Crud<PatientMo
       { name: 'firstName', field: 'firstName', label: 'Nombres', align: 'left', sortable: true },
       { name: 'dni', field: 'dni', label: 'Cédula', align: 'left', sortable: true },
       { name: 'passport', field: 'passport', label: 'Pasaporte', align: 'left', sortable: true },
-      { name: 'bornDate', field: 'bornDate', label: 'Fecha de nacimiento', align: 'left', sortable: false },
-      { name: 'sex', field: 'sex', label: 'Sexo', align: 'left', sortable: false },
-      { name: 'profession', field: 'profession', label: 'Profesion', align: 'left', sortable: true },
-      { name: 'maritalStatus', field: 'maritalStatus', label: 'Estado civil', align: 'left', sortable: true },
       { name: 'address', field: 'address', label: 'Dirección', align: 'left', sortable: false },
       { name: 'telephone', field: 'telephone', label: 'Teléfono', align: 'left', sortable: false },
       { name: 'mobile', field: 'mobile', label: 'Celular', align: 'left', sortable: false },
@@ -84,47 +81,53 @@ export default class PatientPageController extends Vue implements Crud<PatientMo
   *                    API Services                       *
   ********************************************************/
   async createElement (): Promise<void> {
-    const service: PatientService = new PatientService()
+    const service: DoctorService = new DoctorService()
     await service.create(this.element)
-      .then((element: PatientModel) => {
-        element.bornDate = moment(element.bornDate).format('YYYY/MM/DD')
+      .then((element: DoctorModel) => {
         this.elements.push(element)
-        new Notify().onCreateSuccess('Paciente registrado.')
+        new Notify().onCreateSuccess('Doctor registrado.')
       })
-      .catch((err) => new Notify().onCreateError(err, 'paciente'))
+      .catch((err) => {
+        switch (err.body.error.message) {
+          case 'NO_DOCTOR':
+            new Notify().warning('No es doctor', `${this.element.firstName} no es doctor.`)
+            break
+
+          default:
+            new Notify().error('Error', 'El registro no se pudo guardar.')
+            break
+        }
+      })
   }
 
   async findElements (): Promise<void> {
-    const service: PatientService = new PatientService()
+    const service: DoctorService = new DoctorService()
     await service.find()
-      .then((elements: PatientModel[]) => {
-        elements.forEach((element: PatientModel) => {
-          element.bornDate = moment(element.bornDate).format('YYYY/MM/DD')
-        })
+      .then((elements: DoctorModel[]) => {
         this.elements = elements
       })
       .catch((err) => new Notify().onLoadError(err))
   }
 
   async updateElement (): Promise<void> {
-    const service: PatientService = new PatientService()
+    const service: DoctorService = new DoctorService()
     await service.updateById(this.element)
       .then(() => {
         Object.assign(this.elements[this.elementIndex], this.element)
-        new Notify().onUpdateSuccess('Paciente actualizado')
+        new Notify().onUpdateSuccess('Doctor actualizado')
       })
-      .catch((err) => new Notify().onUpdateError(err, 'paciente'))
+      .catch((err) => new Notify().onUpdateError(err, 'doctor'))
   }
 
-  async deleteElement (element: PatientModel): Promise<void> {
-    const service: PatientService = new PatientService()
+  async deleteElement (element: DoctorModel): Promise<void> {
+    const service: DoctorService = new DoctorService()
     await service.deleteById(element.id)
       .then(() => {
         const index = this.elements.indexOf(element)
         this.elements.splice(index, 1)
-        new Notify().onDeleteSuccess('Paciente eliminado.')
+        new Notify().onDeleteSuccess('Doctor eliminado.')
       })
-      .catch((err) => new Notify().onDeleteError(err, 'paciente'))
+      .catch((err) => new Notify().onDeleteError(err, 'doctor'))
   }
 
   async submit (): Promise<void> {
@@ -133,11 +136,20 @@ export default class PatientPageController extends Vue implements Crud<PatientMo
     this.reset()
   }
 
+  async findPersonal (): Promise<void> {
+    const service: PersonalService = new PersonalService()
+    service.findByCredentials(this.personalCredential)
+      .then((element: any) => {
+        this.element = element
+        this.element.personalId = element.id
+      })
+  }
+
   /********************************************************
   *                       Methods                         *
   ********************************************************/
 
-  toEditElement (element: PatientModel): void {
+  toEditElement (element: DoctorModel): void {
     this.elementIndex = this.elements.indexOf(element)
     this.element = Object.assign({}, element)
     this.dialog = true
@@ -145,8 +157,9 @@ export default class PatientPageController extends Vue implements Crud<PatientMo
 
   reset (): void {
     this.dialog = false
-    this.element = Object.assign({}, new PatientModel())
+    this.element = Object.assign({}, new DoctorModel())
     this.elementIndex = -1
+    this.personalCredential = ''
   }
 
   getRole (roleId: number): string {

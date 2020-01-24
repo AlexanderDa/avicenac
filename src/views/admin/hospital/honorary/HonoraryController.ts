@@ -6,6 +6,7 @@ import DeletePromt from '@/components/DeletePromt.vue'
 import HonoraryModel from '@/models/HonoraryModel'
 import Crud from '@/views/Crud'
 import HonoraryService from '@/services/HonoraryService'
+import Notify from '@/components/Notify'
 
 @Component({
   name: 'Honorary',
@@ -66,7 +67,9 @@ export default class HonoraryController extends Vue implements Crud<HonoraryMode
     await service.create(this.element)
       .then((element: HonoraryModel) => {
         this.elements.push(element)
+        new Notify().onCreateSuccess('Honorario registrado.')
       })
+      .catch((err) => new Notify().onCreateError(err, 'honorario'))
   }
 
   async findElements (): Promise<void> {
@@ -75,6 +78,7 @@ export default class HonoraryController extends Vue implements Crud<HonoraryMode
       .then((elements: HonoraryModel[]) => {
         this.elements = elements
       })
+      .catch((err) => new Notify().onLoadError(err))
   }
 
   async updateElement (): Promise<void> {
@@ -83,8 +87,9 @@ export default class HonoraryController extends Vue implements Crud<HonoraryMode
     await service.updateById(this.element)
       .then(() => {
         Object.assign(this.elements[this.elementIndex], this.element)
+        new Notify().onUpdateSuccess('Honorario actualizado')
       })
-      .catch(() => { })
+      .catch((err) => new Notify().onUpdateError(err, 'honorario'))
   }
 
   async deleteElement (element: HonoraryModel): Promise<void> {
@@ -93,8 +98,9 @@ export default class HonoraryController extends Vue implements Crud<HonoraryMode
       .then(() => {
         const index = this.elements.indexOf(element)
         this.elements.splice(index, 1)
+        new Notify().onDeleteSuccess('Honorario eliminado.')
       })
-      .catch(() => { })
+      .catch((err) => new Notify().onDeleteError(err, 'honorario'))
   }
 
   async submit (): Promise<void> {

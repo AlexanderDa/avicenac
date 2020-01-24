@@ -174,7 +174,6 @@
             lazy-rules
             :hint="reservationDateLabel"
           />
-          {{element}}
           <div>
             <q-btn label="guardar" type="submit" color="secondary" />
             <q-btn label="limpiar" type="reset" color="secondary" flat class="q-ml-sm" />

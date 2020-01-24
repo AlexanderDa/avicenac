@@ -72,7 +72,9 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
     await service.create(this.element)
       .then((element: UserModel) => {
         this.elements.push(element)
+        new Notify().onCreateSuccess('Usuario registrado.')
       })
+      .catch((err) => new Notify().onCreateError(err, 'usuario'))
   }
 
   async findElements (): Promise<void> {
@@ -81,6 +83,7 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
       .then((elements: UserModel[]) => {
         this.elements = elements
       })
+      .catch((err) => new Notify().onLoadError(err))
   }
 
   async updateElement (): Promise<void> {
@@ -88,8 +91,9 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
     await service.updateById(this.element)
       .then(() => {
         Object.assign(this.elements[this.elementIndex], this.element)
+        new Notify().onUpdateSuccess('Usuario actualizado')
       })
-      .catch(() => { })
+      .catch((err) => new Notify().onUpdateError(err, 'usuario'))
   }
 
   async deleteElement (element: UserModel): Promise<void> {
@@ -98,8 +102,9 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
       .then(() => {
         const index = this.elements.indexOf(element)
         this.elements.splice(index, 1)
+        new Notify().onDeleteSuccess('Usuario eliminado.')
       })
-      .catch(() => { })
+      .catch((err) => new Notify().onDeleteError(err, 'usuario'))
   }
 
   async submit (): Promise<void> {

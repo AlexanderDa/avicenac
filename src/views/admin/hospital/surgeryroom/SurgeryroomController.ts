@@ -6,6 +6,7 @@ import DeletePromt from '@/components/DeletePromt.vue'
 import SurgeryRoomModel from '@/models/SurgeryRoomModel'
 import Crud from '@/views/Crud'
 import SurgeryRoomService from '@/services/SurgeryRoomService'
+import Notify from '@/components/Notify'
 @Component({
   name: 'Surgeryroom',
   components: {
@@ -61,7 +62,9 @@ export default class SurgeryroomController extends Vue implements Crud<SurgeryRo
     await service.create(this.element)
       .then((element: SurgeryRoomModel) => {
         this.elements.push(element)
+        new Notify().onCreateSuccess('Quírofano registrado.')
       })
+      .catch((err) => new Notify().onCreateError(err, 'quirófano'))
   }
 
   async findElements (): Promise<void> {
@@ -70,6 +73,7 @@ export default class SurgeryroomController extends Vue implements Crud<SurgeryRo
       .then((elements: SurgeryRoomModel[]) => {
         this.elements = elements
       })
+      .catch((err) => new Notify().onLoadError(err))
   }
 
   async updateElement (): Promise<void> {
@@ -77,8 +81,9 @@ export default class SurgeryroomController extends Vue implements Crud<SurgeryRo
     await service.updateById(this.element)
       .then(() => {
         Object.assign(this.elements[this.elementIndex], this.element)
+        new Notify().onUpdateSuccess('Quirófano actualizado')
       })
-      .catch(() => { })
+      .catch((err) => new Notify().onUpdateError(err, 'quirófano'))
   }
 
   async deleteElement (element: SurgeryRoomModel): Promise<void> {
@@ -87,8 +92,9 @@ export default class SurgeryroomController extends Vue implements Crud<SurgeryRo
       .then(() => {
         const index = this.elements.indexOf(element)
         this.elements.splice(index, 1)
+        new Notify().onDeleteSuccess('Quirófano eliminado.')
       })
-      .catch(() => { })
+      .catch((err) => new Notify().onDeleteError(err, 'quirófano'))
   }
 
   async submit (): Promise<void> {

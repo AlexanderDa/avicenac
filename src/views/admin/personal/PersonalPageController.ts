@@ -11,6 +11,7 @@ import UserModel from '@/models/UserModel'
 import UserService from '@/services/UserService'
 import AccountService from '@/services/AccountService'
 import RoleModel from '@/models/RoleModel'
+import Notify from '@/components/Notify'
 
 @Component({
   name: 'PersonalPage',
@@ -69,7 +70,6 @@ export default class PersonalPageController extends Vue implements Crud<Personal
       { name: 'emailAddress', field: 'emailAddress', label: 'Email', align: 'left' },
       { name: 'regProfessional', field: 'regProfessional', label: 'Registro profesional', align: 'left' },
       { name: 'address', field: 'address', label: 'Dirección', align: 'left' },
-      // { name: 'isHiren', field: 'isHiren', label: '', align: 'left' },
       { name: 'action', field: 'action', label: 'Acciones', align: 'center' }
     ]
   }
@@ -87,7 +87,9 @@ export default class PersonalPageController extends Vue implements Crud<Personal
     await service.create(this.element)
       .then((element: PersonalModel) => {
         this.elements.push(element)
+        new Notify().onCreateSuccess('Personal registrado.')
       })
+      .catch((err) => new Notify().onCreateError(err, 'usuario'))
   }
 
   async findElements (): Promise<void> {
@@ -96,6 +98,7 @@ export default class PersonalPageController extends Vue implements Crud<Personal
       .then((elements: PersonalModel[]) => {
         this.elements = elements
       })
+      .catch((err) => new Notify().onLoadError(err))
   }
 
   async updateElement (): Promise<void> {
@@ -103,8 +106,9 @@ export default class PersonalPageController extends Vue implements Crud<Personal
     await service.updateById(this.element)
       .then(() => {
         Object.assign(this.elements[this.elementIndex], this.element)
+        new Notify().onUpdateSuccess('Personal actualizado')
       })
-      .catch(() => { })
+      .catch((err) => new Notify().onUpdateError(err, 'personal'))
   }
 
   async deleteElement (element: PersonalModel): Promise<void> {
@@ -113,8 +117,9 @@ export default class PersonalPageController extends Vue implements Crud<Personal
       .then(() => {
         const index = this.elements.indexOf(element)
         this.elements.splice(index, 1)
+        new Notify().onDeleteSuccess('Personal eliminado.')
       })
-      .catch(() => { })
+      .catch((err) => new Notify().onDeleteError(err, 'personal'))
   }
 
   async submit (): Promise<void> {
@@ -148,7 +153,7 @@ export default class PersonalPageController extends Vue implements Crud<Personal
   async toEditElement (element: PersonalModel): Promise<void> {
     this.elementIndex = this.elements.indexOf(element)
     this.element = Object.assign({}, element)
-    await this.findUser(element.userId)
+    if (this.element.userId) { await this.findUser(element.userId) }
     this.wizard = true
   }
 

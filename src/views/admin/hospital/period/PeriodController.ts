@@ -8,6 +8,7 @@ import PeriodModel from '@/models/PeriodModel'
 import Crud from '@/views/Crud'
 import moment from 'moment'
 import PeriodService from '@/services/PeriodService'
+import Notify from '@/components/Notify'
 moment.locale('es')
 
 @Component({
@@ -76,7 +77,9 @@ export default class PeriodController extends Vue implements Crud<PeriodModel> {
         element.startDate = moment(element.startDate).format('YYYY/MM')
         element.finishDate = moment(element.finishDate).format('YYYY/MM')
         this.elements.push(element)
+        new Notify().onCreateSuccess('Periodo registrado.')
       })
+      .catch((err) => new Notify().onCreateError(err, 'periodo'))
   }
 
   async findElements (): Promise<void> {
@@ -89,6 +92,7 @@ export default class PeriodController extends Vue implements Crud<PeriodModel> {
         })
         this.elements = elements
       })
+      .catch((err) => new Notify().onLoadError(err))
   }
 
   async updateElement (): Promise<void> {
@@ -97,8 +101,9 @@ export default class PeriodController extends Vue implements Crud<PeriodModel> {
     await service.updateById(this.element)
       .then(() => {
         Object.assign(this.elements[this.elementIndex], this.element)
+        new Notify().onUpdateSuccess('Periodo actualizado')
       })
-      .catch(() => { })
+      .catch((err) => new Notify().onUpdateError(err, 'periodo'))
   }
 
   async deleteElement (element: PeriodModel): Promise<void> {
@@ -107,8 +112,9 @@ export default class PeriodController extends Vue implements Crud<PeriodModel> {
       .then(() => {
         const index = this.elements.indexOf(element)
         this.elements.splice(index, 1)
+        new Notify().onDeleteSuccess('Periodo eliminado.')
       })
-      .catch(() => { })
+      .catch((err) => new Notify().onDeleteError(err, 'periodo'))
   }
 
   async submit (): Promise<void> {

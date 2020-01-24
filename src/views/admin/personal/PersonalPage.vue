@@ -80,7 +80,8 @@
                       v-model="user.emailAddress"
                       :rules="rules.email"
                       label="Correo electrónico *"
-                      :readonly="elementIndex>-1"
+                      :readonly="elementIndex>-1 && element.userId"
+                      @keyup.space="findAccount()"
                       clearable
                       outlined
                       dense
@@ -89,7 +90,7 @@
                       <template v-slot:after>
                         <q-btn
                           style="margin-left:-7px;height:100%;"
-                          :disabled="elementIndex>-1"
+                          :disabled="elementIndex>-1 && element.userId"
                           color="secondary"
                           icon="search"
                           @click="findAccount()"
@@ -222,8 +223,6 @@
                   dense
                   lazy-rules
                 />
-
-                <q-toggle label="¿Es contratado?" color="secondary" v-model="element.isHired" />
               </div>
             </q-step>
 

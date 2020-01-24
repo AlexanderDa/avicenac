@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import Service, { API_URL } from '@/services/Service'
-import PersonalModel from '@/models/PersonalModel'
+import DoctorModel from '@/models/DoctorModel'
 import { Filter, encodeFilter } from '@/util'
 
-interface PersonalFilter{
+interface DoctorFilter{
   lastName: string;
   firstName: string;
   dni: string ;
@@ -16,12 +16,12 @@ interface PersonalFilter{
   isHired: boolean ;
 }
 
-export default class PersonalService extends Vue implements Service<PersonalModel, PersonalFilter> {
-  async create (element: PersonalModel): Promise<PersonalModel> {
-    let created: PersonalModel = new PersonalModel()
+export default class DoctorService extends Vue implements Service<DoctorModel, DoctorFilter> {
+  async create (element: DoctorModel): Promise<DoctorModel> {
+    let created: DoctorModel = new DoctorModel()
     try {
       const res: any = await this.$http.post(
-        `${API_URL}/personal`,
+        `${API_URL}/doctor`,
         this.formBody(element))
       created = res.body
     } catch (err) {
@@ -34,7 +34,7 @@ export default class PersonalService extends Vue implements Service<PersonalMode
     let total: number = 0
     try {
       const res: any = await this.$http.get(
-        `${API_URL}/personals/count`
+        `${API_URL}/doctors/count`
       )
       total = res.body.count
     } catch (err) {
@@ -43,11 +43,11 @@ export default class PersonalService extends Vue implements Service<PersonalMode
     return total
   }
 
-  async find (filter?: Filter<PersonalFilter>): Promise<PersonalModel[]> {
-    let list: PersonalModel[] = []
+  async find (filter?: Filter<DoctorFilter>): Promise<DoctorModel[]> {
+    let list: DoctorModel[] = []
     try {
       const res: any = await this.$http.get(
-        `${API_URL}/personals${encodeFilter(filter)}`
+        `${API_URL}/doctors${encodeFilter(filter)}`
       )
       list = res.body
     } catch (err) {
@@ -56,11 +56,11 @@ export default class PersonalService extends Vue implements Service<PersonalMode
     return list
   }
 
-  async findById (id: number): Promise<PersonalModel> {
-    let found: PersonalModel = new PersonalModel()
+  async findById (id: number): Promise<DoctorModel> {
+    let found: DoctorModel = new DoctorModel()
     try {
       const res: any = await this.$http.get(
-        `${API_URL}/personal/${id}`
+        `${API_URL}/doctor/${id}`
       )
       found = res.body
     } catch (err) {
@@ -69,13 +69,13 @@ export default class PersonalService extends Vue implements Service<PersonalMode
     return found
   }
 
-  async findByCredentials (credential: string): Promise<PersonalModel> {
-    let found: PersonalModel = new PersonalModel()
+  async findByCredentials (credential: string): Promise<DoctorModel> {
+    let found: DoctorModel = new DoctorModel()
     const filter = { where: { or: [{ dni: credential }, { passport: credential }] } }
 
     try {
       const res: any = await this.$http.get(
-        `${API_URL}/personals${encodeFilter(filter)}`
+        `${API_URL}/doctors${encodeFilter(filter)}`
       )
       found = (res.body[0]) ? res.body[0] : undefined
     } catch (err) {
@@ -84,11 +84,11 @@ export default class PersonalService extends Vue implements Service<PersonalMode
     return found
   }
 
-  async updateById (element: PersonalModel): Promise<boolean> {
+  async updateById (element: DoctorModel): Promise<boolean> {
     let updated: boolean = false
     try {
       const res: any = await this.$http.patch(
-        `${API_URL}/personal/${element.id}`,
+        `${API_URL}/doctor/${element.id}`,
         this.formBody(element)
       )
       updated = res.ok
@@ -102,7 +102,7 @@ export default class PersonalService extends Vue implements Service<PersonalMode
     let success: boolean = false
     try {
       const res: any = await this.$http.delete(
-        `${API_URL}/personal/${id}`
+        `${API_URL}/doctor/${id}`
       )
       success = res.ok
     } catch (err) {
@@ -111,18 +111,10 @@ export default class PersonalService extends Vue implements Service<PersonalMode
     return success
   }
 
-  formBody (element: PersonalModel): PersonalModel {
-    let personal: PersonalModel = new PersonalModel()
-    personal.lastName = element.lastName
-    personal.firstName = element.firstName
-    personal.dni = element.dni || undefined
-    personal.passport = element.passport || undefined
-    personal.telephone = element.telephone || undefined
-    personal.mobile = element.mobile || undefined
-    personal.regProfessional = element.regProfessional || undefined
-    personal.emailAddress = element.emailAddress
-    personal.address = element.address
-    personal.userId = element.userId
-    return personal
+  formBody (element: DoctorModel): DoctorModel {
+    let doctor: DoctorModel = new DoctorModel()
+    doctor.isHired = element.isHired
+    doctor.personalId = element.personalId
+    return doctor
   }
 }

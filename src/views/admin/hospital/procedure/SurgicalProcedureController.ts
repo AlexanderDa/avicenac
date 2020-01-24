@@ -8,6 +8,7 @@ import SurgicalProcedureModel from '@/models/SurgicalProcedureModel'
 import Crud from '@/views/Crud'
 import moment from 'moment'
 import SurgicalProcedureService from '@/services/SurgicalProcedureService'
+import Notify from '@/components/Notify'
 moment.locale('es')
 
 @Component({
@@ -67,7 +68,9 @@ export default class SurgicalProcedureController extends Vue implements Crud<Sur
     await service.create(this.element)
       .then((element: SurgicalProcedureModel) => {
         this.elements.push(element)
+        new Notify().onCreateSuccess('Procedimiento registrado.')
       })
+      .catch((err) => new Notify().onCreateError(err, 'procedimiento'))
   }
 
   async findElements (): Promise<void> {
@@ -76,6 +79,7 @@ export default class SurgicalProcedureController extends Vue implements Crud<Sur
       .then((elements: SurgicalProcedureModel[]) => {
         this.elements = elements
       })
+      .catch((err) => new Notify().onLoadError(err))
   }
 
   async updateElement (): Promise<void> {
@@ -84,8 +88,9 @@ export default class SurgicalProcedureController extends Vue implements Crud<Sur
     await service.updateById(this.element)
       .then(() => {
         Object.assign(this.elements[this.elementIndex], this.element)
+        new Notify().onUpdateSuccess('Procedimiento actualizado')
       })
-      .catch(() => { })
+      .catch((err) => new Notify().onUpdateError(err, 'procedimiento'))
   }
 
   async deleteElement (element: SurgicalProcedureModel): Promise<void> {
@@ -94,8 +99,9 @@ export default class SurgicalProcedureController extends Vue implements Crud<Sur
       .then(() => {
         const index = this.elements.indexOf(element)
         this.elements.splice(index, 1)
+        new Notify().onDeleteSuccess('Procedimiento eliminado.')
       })
-      .catch(() => { })
+      .catch((err) => new Notify().onDeleteError(err, 'procedimiento'))
   }
 
   async submit (): Promise<void> {

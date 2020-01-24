@@ -6,6 +6,13 @@ body
 	-ms-user-select: none        // IE 10+ and Edge 
 	user-select: none            // Non-prefixed version
 	overflow: hidden
+	& .q-table
+		-webkit-touch-callout: text  // iOS Safari 
+		-webkit-user-select: text    // Chrome 6.0+, Safari 3.1+, Edge & Opera 15+ 
+		-moz-user-select: text       // Firefox 
+		-ms-user-select: text        // IE 10+ and Edge 
+		user-select: text  
+
 
 //.crud-table replace 
 .q-table__container.q-table__card
