@@ -128,7 +128,7 @@ export default class PatientService extends Vue implements Service<PatientModel,
     patient.address = element.address
     patient.telephone = element.telephone || undefined
     patient.mobile = element.mobile || undefined
-    patient.emailAddress = element.emailAddress
+    patient.emailAddress = element.emailAddress || undefined
     return patient
   }
 }

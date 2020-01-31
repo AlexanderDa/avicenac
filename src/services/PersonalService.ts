@@ -122,7 +122,7 @@ export default class PersonalService extends Vue implements Service<PersonalMode
     personal.regProfessional = element.regProfessional || undefined
     personal.emailAddress = element.emailAddress
     personal.address = element.address
-    personal.userId = element.userId
+    personal.userId = element.userId || undefined
     return personal
   }
 }

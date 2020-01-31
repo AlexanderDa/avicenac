@@ -11,5 +11,5 @@ export default class PersonalModel extends Model {
     public emailAddress!: string;
     public address!: string;
     public readonly image!: string ;
-    public userId!: number;
+    public userId!: number | undefined;
 }

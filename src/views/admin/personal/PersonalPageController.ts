@@ -3,6 +3,7 @@ import Component from 'vue-class-component'
 import { Watch } from 'vue-property-decorator'
 import Crud from '@/views/Crud'
 import Empty from '@/components/Empty.vue'
+import Frame from '@/components/Frame.vue'
 import DeletePromt from '@/components/DeletePromt.vue'
 import PersonalModel from '@/models/PersonalModel'
 import validator from 'validator'
@@ -15,7 +16,7 @@ import Notify from '@/components/Notify'
 
 @Component({
   name: 'PersonalPage',
-  components: { Empty, DeletePromt }
+  components: { Frame, Empty, DeletePromt }
 })
 export default class PersonalPageController extends Vue implements Crud<PersonalModel> {
   /********************************************************
@@ -23,8 +24,7 @@ export default class PersonalPageController extends Vue implements Crud<Personal
   ********************************************************/
 
   // GUI
-  private wizard: boolean = false
-  private step: number = 1
+  private dialog: boolean = false
   private search: string = ''
   private headers: any[] = []
   private pagination: any = {}
@@ -33,7 +33,6 @@ export default class PersonalPageController extends Vue implements Crud<Personal
   private elements: PersonalModel[] = []
   private elementIndex: number = -1
   private element: PersonalModel = new PersonalModel()
-  private user: UserModel = new UserModel()
 
   // Validations
   private rules: any = {
@@ -123,27 +122,9 @@ export default class PersonalPageController extends Vue implements Crud<Personal
   }
 
   async submit (): Promise<void> {
-    this.element.emailAddress = this.user.emailAddress
-    this.element.userId = this.user.id
     if (this.elementIndex > -1) await this.updateElement()
     else await this.createElement()
     this.reset()
-  }
-
-  async findUser (userId: number): Promise<void> {
-    const service: UserService = new UserService()
-    await service.findById(userId)
-      .then((element: UserModel) => {
-        this.user = element
-      })
-  }
-
-  async findAccount (): Promise<void> {
-    const service: AccountService = new AccountService()
-    await service.findByEmail(this.user.emailAddress)
-      .then((element: UserModel) => {
-        this.user = element
-      })
   }
 
   /********************************************************
@@ -153,21 +134,13 @@ export default class PersonalPageController extends Vue implements Crud<Personal
   async toEditElement (element: PersonalModel): Promise<void> {
     this.elementIndex = this.elements.indexOf(element)
     this.element = Object.assign({}, element)
-    if (this.element.userId) { await this.findUser(element.userId) }
-    this.wizard = true
+    this.dialog = true
   }
 
   reset (): void {
-    this.wizard = false
-    this.step = 1
-    this.$router.replace({ query: {} })
+    this.dialog = false
     this.element = Object.assign({}, new PersonalModel())
-    this.user = Object.assign({}, new UserModel())
     this.elementIndex = -1
-  }
-
-  private validatePerfilForm (): void {
-
   }
 
   getRole (roleId: number): string {
@@ -176,10 +149,5 @@ export default class PersonalPageController extends Vue implements Crud<Personal
       if (element.id === roleId) { role = element.name }
     })
     return role
-  }
-
-  @Watch('user.emailAddress')
-  private onClearEmailAddress (newValue: string) {
-    if (!(newValue && newValue.length > 0)) this.user = new UserModel()
   }
 }

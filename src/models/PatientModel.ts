@@ -1,15 +1,3 @@
-// lastName
-// firstName
-// dni
-// passport
-// bornDate
-// sex
-// profession
-// maritalStatus
-// address
-// telephone
-// mobile
-// emailAddress
 
 import Model from './Model'
 
@@ -25,5 +13,5 @@ export default class PatientModel extends Model {
   public address! : string
   public telephone! : string | undefined
   public mobile! : string | undefined
-  public emailAddress! : string
+  public emailAddress! : string | undefined
 }

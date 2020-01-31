@@ -47,8 +47,7 @@ export default class PatientPageController extends Vue implements Crud<PatientMo
       }
     ],
     email: [
-      (v: string) => (v && v.length > 0) || 'Atributo requerido.',
-      (v: string) => validator.isEmail(v) || 'El  correo ingresado no es valido.'
+      (v: string) => (v) ? validator.isEmail(v) || 'El  correo ingresado no es valido.' : true
     ]
   }
 
