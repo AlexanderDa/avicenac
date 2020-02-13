@@ -66,43 +66,67 @@
     </q-table>
 
     <q-dialog v-model="dialog" persistent>
-      <Frame :title="elementIndex!==-1?'Editar':'Nuevo'" icon="event" width="300">
+      <Frame :title="elementIndex!==-1?'Editar':'Nuevo'" icon="event" width="500">
         <q-btn slot="action" flat round dense icon="close" @click="reset()" />
-        <q-form slot="content" @submit="submit" class="q-gutter-md">
-          <q-input
-            v-model="element.emailAddress"
-            label="Correo electrónico *"
-            :rules="rules.email"
-            lazy-rules
-            outlined
-            dense
-          />
+        <div slot="content">
           <q-select
-            outlined
-            v-model="element.roleId"
-            :rules="rules.role"
-            lazy-rules
-            :options="$store.state.RoleStore.list"
-            label="Rol de usuario"
+            v-if="elementIndex===-1"
+            :option-label="(item) =>   item === null ?
+                          null :`${item.lastName || ''} ${item.firstName || ''} `"
+            :options="personals"
+            label="Buscar personal"
+            v-model="selectedPersonal"
+            @new-value="findPersonal"
             option-value="id"
-            option-label="name"
+            ref="perSelect"
+            :rules="[]"
+            input-debounce="0"
             map-options
+            lazy-rules
             emit-value
+            clearable
+            use-input
+            outlined
             dense
           />
-          <q-item>
-            <q-item-section>
-              <q-item-label>{{element.isActive?'Usuario activo':'Usuario inactivo'}}</q-item-label>
-            </q-item-section>
-            <q-item-section avatar>
-              <q-toggle color="secondary" v-model="element.isActive" />
-            </q-item-section>
-          </q-item>
-          <div>
-            <q-btn label="guardar" type="submit" color="secondary" />
-            <q-btn label="limpiar" type="reset" color="secondary" flat class="q-ml-sm" />
-          </div>
-        </q-form>
+
+          <q-form @submit="submit" class="q-gutter-md">
+            <q-input
+              v-model="element.emailAddress"
+              label="Correo electrónico *"
+              :rules="rules.email"
+              readonly
+              lazy-rules
+              outlined
+              dense
+            />
+            <q-select
+              outlined
+              v-model="element.roleId"
+              :rules="rules.role"
+              lazy-rules
+              :options="$store.state.RoleStore.list"
+              label="Rol de usuario"
+              option-value="id"
+              option-label="name"
+              map-options
+              emit-value
+              dense
+            />
+            <q-item>
+              <q-item-section>
+                <q-item-label>{{element.isActive?'Usuario activo':'Usuario inactivo'}}</q-item-label>
+              </q-item-section>
+              <q-item-section avatar>
+                <q-toggle color="secondary" v-model="element.isActive" />
+              </q-item-section>
+            </q-item>
+            <div>
+              <q-btn label="guardar" type="submit" color="secondary" />
+              <q-btn label="limpiar" type="reset" color="secondary" flat class="q-ml-sm" />
+            </div>
+          </q-form>
+        </div>
       </Frame>
     </q-dialog>
   </div>

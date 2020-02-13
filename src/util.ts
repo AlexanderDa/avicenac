@@ -4,8 +4,18 @@ export interface ListRouterItem {
   page: string;
 }
 
+interface stringFilter {
+  like?: string
+}
+export interface StringFilter {
+  like?: string | stringFilter
+}
+
+interface WhereFilter<E>{
+  or:E[]
+}
 export interface Filter<E> {
-  where?: E,
+  where?: E | WhereFilter<E>,
   offset?: number,
   limit?: number,
   skip?: number,

@@ -1,6 +1,6 @@
 import Model from './Model'
 
-export default class PersonalModel extends Model {
+export default class DoctorModel extends Model {
   public readonly lastName!: string;
   public readonly firstName!: string;
   public readonly dni!: string;

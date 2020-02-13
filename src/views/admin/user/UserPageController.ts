@@ -10,6 +10,9 @@ import RoleModel from '@/models/RoleModel'
 import UserService from '@/services/UserService'
 import EmailService from '@/services/EmailService'
 import Notify from '@/components/Notify'
+import PersonalService from '@/services/PersonalService'
+import PersonalModel from '@/models/PersonalModel'
+import { Watch } from 'vue-property-decorator'
 
 @Component({
   name: 'UserPage',
@@ -27,6 +30,7 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
   // GUI
   private dialog: boolean = false
   private search: string = ''
+  private searchPersonal: string = ''
   private headers: any[] = []
   private pagination: any = {}
 
@@ -34,6 +38,8 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
   private elements: UserModel[] = []
   private elementIndex: number = -1
   private element: UserModel = new UserModel()
+  private personals: PersonalModel[] = []
+  private selectedPersonal: number | null = null
 
   // Validations
   private rules: any = {
@@ -70,9 +76,10 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
   async createElement (): Promise<void> {
     const service: UserService = new UserService()
     await service.create(this.element)
-      .then((element: UserModel) => {
+      .then(async (element: UserModel) => {
         this.elements.push(element)
         new Notify().onCreateSuccess('Usuario registrado.')
+        await this.updatePersonalUserId(element.id)
       })
       .catch((err) => new Notify().onCreateError(err, 'usuario'))
   }
@@ -141,6 +148,45 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
       })
   }
 
+  async findPersonal (value: string): Promise<void> {
+    const service: PersonalService = new PersonalService()
+    await service.find({
+      where: {
+        or: [
+          { firstName: { like: `%${value}%` } },
+          { lastName: { like: `%${value}%` } },
+          { dni: { like: `%${value}%` } },
+          { passport: { like: `%${value}%` } }
+        ]
+      }
+    })
+      .then((elements: any[]) => {
+        if (elements.length > 0) {
+          this.personals = elements
+          // @ts-ignore
+          this.$refs.perSelect.virtualScrollSliceRange.to = this.personals.length
+        } else {
+          new Notify().warning('Sin resultado')
+        }
+      })
+    // @ts-ignore
+    this.$refs.perSelect.showPopup()
+  }
+
+  async updatePersonalUserId (userId:number): Promise<void> {
+    const service: PersonalService = new PersonalService()
+    if (this.selectedPersonal) {
+      let personal: PersonalModel = this.filterPersonal(this.selectedPersonal)
+      personal.userId = userId
+      service.updateById(personal)
+        .then(() => {
+          new Notify().info('Cuenta asignada')
+        })
+        .catch(() => {
+          new Notify().error('Sin asignar', 'La cuenta no fue asignada.')
+        })
+    }
+  }
   /********************************************************
   *                       Methods                         *
   ********************************************************/
@@ -155,6 +201,8 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
     this.dialog = false
     this.element = Object.assign({}, new UserModel())
     this.elementIndex = -1
+    this.personals = []
+    this.selectedPersonal = null
   }
 
   getRole (roleId: number): string {
@@ -163,5 +211,22 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
       if (element.id === roleId) { role = element.name }
     })
     return role
+  }
+
+  private filterPersonal (id: number): PersonalModel {
+    let personal: PersonalModel = new PersonalModel()
+    const filter = this.personals.filter(element => element.id === id)
+    personal = filter[0]
+    return personal
+  }
+
+  @Watch('selectedPersonal')
+  private onSelectedPersonal (newValue: number): void {
+    if (newValue) {
+      const filter: PersonalModel = this.filterPersonal(newValue)
+      this.element.emailAddress = filter.emailAddress
+    } else {
+      this.element.emailAddress = ''
+    }
   }
 }

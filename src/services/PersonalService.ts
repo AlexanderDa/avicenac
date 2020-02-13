@@ -1,19 +1,19 @@
 import Vue from 'vue'
 import Service, { API_URL } from '@/services/Service'
 import PersonalModel from '@/models/PersonalModel'
-import { Filter, encodeFilter } from '@/util'
+import { Filter, encodeFilter, StringFilter } from '@/util'
 
-interface PersonalFilter{
-  lastName: string;
-  firstName: string;
-  dni: string ;
-  passport: string ;
-  telephone: string ;
-  mobile: string ;
-  regProfessional: string ;
-  emailAddress: string;
-  address: string;
-  isHired: boolean ;
+interface PersonalFilter {
+  lastName?: StringFilter;
+  firstName?: StringFilter;
+  dni?: StringFilter;
+  passport?: StringFilter;
+  telephone?: string;
+  mobile?: string;
+  regProfessional?: string;
+  emailAddress?: string;
+  address?: string;
+  isHired?: boolean;
 }
 
 export default class PersonalService extends Vue implements Service<PersonalModel, PersonalFilter> {
