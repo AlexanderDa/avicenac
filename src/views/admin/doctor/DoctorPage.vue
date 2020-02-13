@@ -52,39 +52,14 @@
         <q-btn slot="action" flat round dense icon="close" @click="reset()" />
         <q-form slot="content" @submit="submit" class="q-gutter-md">
           <div class="row">
-            <q-input
-              v-if="elementIndex===-1"
-              class="col-xs-12"
-              @keyup.space="findPersonal()"
-              v-model="personalCredential"
-              placeholder="Cédula o pasaporte"
-              :rules="[
-              // v => element.patientId || 'Paciente requerido.'
-            ]"
-              label="Personal"
-              mask="##########"
-              unmasked-value
-              bottom-slots
-              clearable
-              outlined
-              dense
-            >
-              <template v-slot:after>
-                <q-btn
-                  style="margin-left:-7px;height:100%;"
-                  color="secondary"
-                  icon="search"
-                  @click="findPersonal()"
-                />
-              </template>
-            </q-input>
+            <SearchPersonal class="col-xs-12" @input="selectedPersonal" v-if="elementIndex===-1" />
 
             <q-input
               class="col-xs-12 col-sm-6"
               v-model="element.firstName"
               :rules="[]"
               label="Nombres *"
-              readonly
+              :readonly="!element.personalId"
               outlined
               dense
               lazy-rules
@@ -95,7 +70,7 @@
               v-model="element.lastName"
               :rules="[]"
               label="Apellidos *"
-              readonly
+              :readonly="!element.personalId"
               outlined
               dense
               lazy-rules
@@ -108,7 +83,7 @@
               label="Cédula *"
               mask="#########-#"
               unmasked-value
-              readonly
+              :readonly="!element.personalId"
               outlined
               dense
               lazy-rules
@@ -118,7 +93,7 @@
               v-model="element.passport"
               :rules="[]"
               label="Pasaporte"
-              readonly
+              :readonly="!element.personalId"
               outlined
               dense
               lazy-rules
@@ -131,7 +106,7 @@
               label="Número celular *"
               mask="### ### ####"
               unmasked-value
-              readonly
+              :readonly="!element.personalId"
               outlined
               dense
               lazy-rules
@@ -143,7 +118,7 @@
               label="Teléfono fijo "
               mask="( ### ) ### ####"
               unmasked-value
-              readonly
+              :readonly="!element.personalId"
               outlined
               dense
               lazy-rules
@@ -153,7 +128,7 @@
               v-model="element.emailAddress"
               :rules="[]"
               label="Correo electrónico *"
-              readonly
+              :readonly="!element.personalId"
               outlined
               dense
               lazy-rules
@@ -163,7 +138,7 @@
               v-model="element.address"
               :rules="[]"
               label="Dirección *"
-              readonly
+              :readonly="!element.personalId"
               outlined
               dense
               lazy-rules

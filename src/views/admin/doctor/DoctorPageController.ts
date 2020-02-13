@@ -1,23 +1,24 @@
 import Vue from 'vue'
-import moment from 'moment'
 import Component from 'vue-class-component'
 import validator from 'validator'
 import Frame from '@/components/Frame.vue'
 import Empty from '@/components/Empty.vue'
 import DeletePromt from '@/components/DeletePromt.vue'
+import SearchPersonal from '@/components/search/SearchPersonal.vue'
 import DoctorModel from '@/models/DoctorModel'
 import Crud from '@/views/Crud'
 import RoleModel from '@/models/RoleModel'
 import DoctorService from '@/services/DoctorService'
 import Notify from '@/components/Notify'
-import PersonalService from '@/services/PersonalService'
+import PersonalModel from '@/models/PersonalModel'
 
 @Component({
   name: 'DoctorPage',
   components: {
     Frame,
     Empty,
-    DeletePromt
+    DeletePromt,
+    SearchPersonal
   }
 })
 export default class DoctorPageController extends Vue implements Crud<DoctorModel> {
@@ -30,7 +31,6 @@ export default class DoctorPageController extends Vue implements Crud<DoctorMode
   private search: string = ''
   private headers: any[] = []
   private pagination: any = {}
-  private personalCredential: string = ''
 
   // Element data
   private elements: DoctorModel[] = []
@@ -136,15 +136,6 @@ export default class DoctorPageController extends Vue implements Crud<DoctorMode
     this.reset()
   }
 
-  async findPersonal (): Promise<void> {
-    const service: PersonalService = new PersonalService()
-    service.findByCredentials(this.personalCredential)
-      .then((element: any) => {
-        this.element = element
-        this.element.personalId = element.id
-      })
-  }
-
   /********************************************************
   *                       Methods                         *
   ********************************************************/
@@ -159,7 +150,6 @@ export default class DoctorPageController extends Vue implements Crud<DoctorMode
     this.dialog = false
     this.element = Object.assign({}, new DoctorModel())
     this.elementIndex = -1
-    this.personalCredential = ''
   }
 
   getRole (roleId: number): string {
@@ -168,5 +158,22 @@ export default class DoctorPageController extends Vue implements Crud<DoctorMode
       if (element.id === roleId) { role = element.name }
     })
     return role
+  }
+
+  selectedPersonal (personal: PersonalModel): void {
+    let doctor: DoctorModel = new DoctorModel()
+    if (personal.createdAt) {
+      doctor.lastName = personal.lastName
+      doctor.firstName = personal.firstName
+      doctor.dni = personal.dni || ''
+      doctor.passport = personal.passport || ''
+      doctor.telephone = personal.telephone || ''
+      doctor.mobile = personal.mobile || ''
+      doctor.regProfessional = personal.regProfessional || ''
+      doctor.emailAddress = personal.emailAddress
+      doctor.address = personal.address
+      doctor.personalId = personal.id
+    } else { doctor = new DoctorModel() }
+    this.element = doctor
   }
 }

@@ -48,7 +48,14 @@
         <q-btn slot="action" flat round dense icon="close" @click="reset()" />
         <q-form slot="content" @submit="submit" class="q-gutter-md">
           <div class="row">
-            <div class="col col-xs-12 col-sm-6">avatar</div>
+            <div class="col col-xs-12 col-sm-6">
+              <div class="flex flex-center">
+                <q-avatar rounded size="115px" class="shadow-1">
+                  <img v-if="element.image" :src="element.image" />
+                  <img v-else src="@/assets/user.svg" />
+                </q-avatar>
+              </div>
+            </div>
             <div class="col col-xs-12 col-sm-6">
               <q-input
                 v-model="element.firstName"
