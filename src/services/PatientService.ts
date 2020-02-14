@@ -2,14 +2,14 @@ import Vue from 'vue'
 import PatientModel from '@/models/PatientModel'
 import Service, { API_URL } from '@/services/Service'
 import moment from 'moment'
-import { Filter, encodeFilter } from '@/util'
+import { Filter, encodeFilter, StringFilter } from '@/util'
 moment.locale('es')
 
-interface PatientFilter {
-  lastName?: string
-  firstName?: string
-  dni?: string
-  passport?: string
+export interface PatientFilter {
+  lastName?: string | StringFilter
+  firstName?: string | StringFilter
+  dni?: string | StringFilter
+  passport?: string | StringFilter
   bornDate?: string
   sex?: string
   profession?: string

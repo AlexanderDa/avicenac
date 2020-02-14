@@ -1,19 +1,19 @@
 import Vue from 'vue'
 import Service, { API_URL } from '@/services/Service'
 import DoctorModel from '@/models/DoctorModel'
-import { Filter, encodeFilter } from '@/util'
+import { Filter, encodeFilter, StringFilter } from '@/util'
 
-interface DoctorFilter{
-  lastName: string;
-  firstName: string;
-  dni: string ;
-  passport: string ;
-  telephone: string ;
-  mobile: string ;
-  regProfessional: string ;
-  emailAddress: string;
-  address: string;
-  isHired: boolean ;
+export interface DoctorFilter{
+  lastName?: string | StringFilter;
+  firstName?: string | StringFilter;
+  dni?: string | StringFilter ;
+  passport?: string | StringFilter ;
+  telephone?: string ;
+  mobile?: string ;
+  regProfessional?: string ;
+  emailAddress?: string;
+  address?: string;
+  isHired?: boolean ;
 }
 
 export default class DoctorService extends Vue implements Service<DoctorModel, DoctorFilter> {

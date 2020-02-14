@@ -3,11 +3,11 @@ import Service, { API_URL } from '@/services/Service'
 import PersonalModel from '@/models/PersonalModel'
 import { Filter, encodeFilter, StringFilter } from '@/util'
 
-interface PersonalFilter {
-  lastName?: StringFilter;
-  firstName?: StringFilter;
-  dni?: StringFilter;
-  passport?: StringFilter;
+export interface PersonalFilter {
+  lastName?: string | StringFilter;
+  firstName?: string | StringFilter;
+  dni?: string | StringFilter;
+  passport?: string | StringFilter;
   telephone?: string;
   mobile?: string;
   regProfessional?: string;

@@ -4,11 +4,9 @@ export interface ListRouterItem {
   page: string;
 }
 
-interface stringFilter {
-  like?: string
-}
 export interface StringFilter {
-  like?: string | stringFilter
+  like?: string
+  ilike?: string
 }
 
 interface WhereFilter<E>{

@@ -2,12 +2,12 @@ import Vue from 'vue'
 import SurgicalProcedureModel from '@/models/SurgicalProcedureModel'
 import Service, { API_URL } from '@/services/Service'
 import moment from 'moment'
-import { Filter, encodeFilter } from '@/util'
+import { Filter, encodeFilter, StringFilter } from '@/util'
 moment.locale('es')
 
-interface SurgicalProcedureFilter {
-  name?: string
-  description?: string
+export interface SurgicalProcedureFilter {
+  name?: string | StringFilter
+  description?: string | StringFilter
 }
 
 export default class SurgicalProcedureService extends Vue implements Service<SurgicalProcedureModel, SurgicalProcedureFilter> {
