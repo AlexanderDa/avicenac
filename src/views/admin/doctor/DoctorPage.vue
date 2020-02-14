@@ -52,7 +52,7 @@
         <q-btn slot="action" flat round dense icon="close" @click="reset()" />
         <q-form slot="content" @submit="submit" class="q-gutter-md">
           <div class="row">
-            <SearchPersonal class="col-xs-12" @input="selectedPersonal" v-if="elementIndex===-1" />
+            <SearchPersonal class="col-xs-12" @selected="selectedPersonal" v-if="elementIndex===-1" />
 
             <q-input
               class="col-xs-12 col-sm-6"

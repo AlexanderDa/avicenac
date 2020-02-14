@@ -4,6 +4,7 @@ import validator from 'validator'
 import Frame from '@/components/Frame.vue'
 import Empty from '@/components/Empty.vue'
 import DeletePromt from '@/components/DeletePromt.vue'
+import SearchPersonal from '@/components/search/SearchPersonal.vue'
 import UserModel from '@/models/UserModel'
 import Crud from '@/views/Crud'
 import RoleModel from '@/models/RoleModel'
@@ -12,14 +13,14 @@ import EmailService from '@/services/EmailService'
 import Notify from '@/components/Notify'
 import PersonalService from '@/services/PersonalService'
 import PersonalModel from '@/models/PersonalModel'
-import { Watch } from 'vue-property-decorator'
 
 @Component({
   name: 'UserPage',
   components: {
     Frame,
     Empty,
-    DeletePromt
+    DeletePromt,
+    SearchPersonal
   }
 })
 export default class UserPageController extends Vue implements Crud<UserModel> {
@@ -30,7 +31,6 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
   // GUI
   private dialog: boolean = false
   private search: string = ''
-  private searchPersonal: string = ''
   private headers: any[] = []
   private pagination: any = {}
 
@@ -38,8 +38,7 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
   private elements: UserModel[] = []
   private elementIndex: number = -1
   private element: UserModel = new UserModel()
-  private personals: PersonalModel[] = []
-  private selectedPersonal: number | null = null
+  public personal: PersonalModel = new PersonalModel()
 
   // Validations
   private rules: any = {
@@ -148,37 +147,11 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
       })
   }
 
-  async findPersonal (value: string): Promise<void> {
+  async updatePersonalUserId (userId: number): Promise<void> {
     const service: PersonalService = new PersonalService()
-    await service.find({
-      where: {
-        or: [
-          { firstName: { like: `%${value}%` } },
-          { lastName: { like: `%${value}%` } },
-          { dni: { like: `%${value}%` } },
-          { passport: { like: `%${value}%` } }
-        ]
-      }
-    })
-      .then((elements: any[]) => {
-        if (elements.length > 0) {
-          this.personals = elements
-          // @ts-ignore
-          this.$refs.perSelect.virtualScrollSliceRange.to = this.personals.length
-        } else {
-          new Notify().warning('Sin resultado')
-        }
-      })
-    // @ts-ignore
-    this.$refs.perSelect.showPopup()
-  }
-
-  async updatePersonalUserId (userId:number): Promise<void> {
-    const service: PersonalService = new PersonalService()
-    if (this.selectedPersonal) {
-      let personal: PersonalModel = this.filterPersonal(this.selectedPersonal)
-      personal.userId = userId
-      service.updateById(personal)
+    if (this.personal) {
+      this.personal.userId = userId
+      service.updateById(this.personal)
         .then(() => {
           new Notify().info('Cuenta asignada')
         })
@@ -201,8 +174,7 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
     this.dialog = false
     this.element = Object.assign({}, new UserModel())
     this.elementIndex = -1
-    this.personals = []
-    this.selectedPersonal = null
+    this.personal = new PersonalModel()
   }
 
   getRole (roleId: number): string {
@@ -213,20 +185,9 @@ export default class UserPageController extends Vue implements Crud<UserModel> {
     return role
   }
 
-  private filterPersonal (id: number): PersonalModel {
-    let personal: PersonalModel = new PersonalModel()
-    const filter = this.personals.filter(element => element.id === id)
-    personal = filter[0]
-    return personal
-  }
-
-  @Watch('selectedPersonal')
-  private onSelectedPersonal (newValue: number): void {
-    if (newValue) {
-      const filter: PersonalModel = this.filterPersonal(newValue)
-      this.element.emailAddress = filter.emailAddress
-    } else {
-      this.element.emailAddress = ''
-    }
+  setPersonal (personal: PersonalModel): void {
+    this.personal = personal
+    this.element.emailAddress = personal.emailAddress
+    if (personal.userId) { new Notify().warning('advertencia', `${personal.firstName} ya tiene una cuenta asignada.`) }
   }
 }
