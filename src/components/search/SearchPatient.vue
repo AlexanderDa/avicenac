@@ -1,5 +1,5 @@
 <template>
-  <div>patient: {{select}}
+  <div>
     <q-select
       :option-label="(item) =>   item === null ?
                           null :`${item.lastName || ''} ${item.firstName || ''} `"

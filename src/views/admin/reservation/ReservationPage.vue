@@ -65,6 +65,7 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
+      <q-btn flat round dense icon="refresh" @click="findElements()" />
       <q-btn @click="dialog=true" color="secondary" icon="add" flat round />
     </q-toolbar>
     <q-scroll-area style>
@@ -81,99 +82,87 @@
         :view="view"
         hour24-format
         animated
-      />
+      >
+      <template #day-body="{date, timeStartPos, timeDurationHeight}">
+        <div>
+          <template v-for="(event, index) in getReservations(date)" disable="true">
+          <q-btn
+            :key="index"
+            class="my-event justify-center ellipsis"
+            :style="badgeStyles(event, timeStartPos, timeDurationHeight)"
+          >
+            <q-icon  name="query_builder" class="q-mr-xs"></q-icon><span class="ellipsis">{{ event.title }}</span>
+          </q-btn>
+        </template>
+        </div>
+      </template>
+      </QCalendar>
     </q-scroll-area>
     <q-dialog v-model="dialog" persistent>
-      <Frame :title="elementIndex!==-1?'Editar':'Nuevo'" icon="event" width="300">
+      <Frame :title="elementIndex!==-1?'Editar':'Nuevo'" icon="event" width="700">
         <q-btn slot="action" flat round dense icon="close" @click="reset()" />
         <q-form slot="content" @submit="submit" class="q-gutter-md">
-          <q-input
-            placeholder="Cédula o pasaporte"
-            @keyup.space="findPatient()"
-            v-model="patientCredential"
-            :rules="[
-              v => element.patientId || 'Paciente requerido.'
-            ]"
-            label="Paciente"
-            mask="##########"
-            unmasked-value
-            bottom-slots
-            clearable
-            outlined
-            dense
-          >
-            <template
-              v-slot:hint
-            >{{(patient.createdAt)?`${patient.lastName} ${patient.firstName}`:'Sin paciente'}}</template>
-            <template v-slot:after>
-              <q-btn
-                style="margin-left:-7px;height:100%;"
-                color="secondary"
-                icon="search"
-                @click="findPatient()"
+          <div class="row">
+            <div class="col-xs-12 col-md-6">
+              <SearchDoctor @selected="(item)=>onDoctorSelected(item)"/>
+              <SearchPatient @selected="(item)=>onPatientSelected(item)"/>
+              <SearchProcedure @selected="(item)=>onProcedureSelected(item)"/>
+                <SelectPeriod onlyid="true" v-model="element.periodId"/>
+              <q-input
+                v-model="element.reservationDate"
+                label="Fecha de reserveción *"
+                :rules="rules.date"
+                mask="####/##/## ##:##"
+                outlined
+                dense
+                fill-mask
+                lazy-rules
+
               />
-            </template>
-          </q-input>
+            </div>
+            <div class="col-xs-12 col-md-6">
+              <q-list>
+                <q-item>
+                  <q-item-section avatar>
+                    <q-icon color="secondary" name="fas fa-user-md" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>Doctor</q-item-label>
+                    <q-item-label caption>{{resInfo.doctor}}</q-item-label>
+                  </q-item-section>
+                </q-item>
 
-          <q-select
-            :rules="[
-              v => element.periodId || 'Periodo requerido.'
-            ]"
-            v-model="element.periodId"
-            label="Periodo *"
-            :options="periods"
-            behavior="menu"
-            option-value="id"
-            option-label="label"
-            map-options
-            emit-value
-            outlined
-            dense
-          />
+                <q-item>
+                  <q-item-section avatar>
+                    <q-icon color="secondary" name="fas fa-user-injured" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>Paciente</q-item-label>
+                    <q-item-label caption>{{resInfo.patient}}</q-item-label>
+                  </q-item-section>
+                </q-item>
 
-          <q-select
-            :rules="[
-              v => element.surgeryroomId || 'Quirófano requerido.'
-            ]"
-            v-model="element.surgeryroomId"
-            label="Quirófano *"
-            :options="surgeryRooms"
-            behavior="menu"
-            option-value="id"
-            option-label="name"
-            map-options
-            emit-value
-            outlined
-            dense
-          />
-
-          <q-select
-            :rules="[
-              v => element.procedureId || 'Procedimiento requerido.'
-            ]"
-            v-model="element.procedureId"
-            label="Procedimiento *"
-            :options="procedures"
-            behavior="dialog"
-            option-value="id"
-            option-label="name"
-            map-options
-            emit-value
-            outlined
-            dense
-          />
-
-          <q-input
-            v-model="element.reservationDate"
-            label="Fecha de reserveción *"
-            :rules="rules.date"
-            mask="####/##/## ##:##"
-            outlined
-            dense
-            fill-mask
-            lazy-rules
-            :hint="reservationDateLabel"
-          />
+                <q-item>
+                  <q-item-section avatar>
+                    <q-icon color="secondary" name="airline_seat_flat_angled" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>Procedimiento</q-item-label>
+                    <q-item-label caption>{{resInfo.procedure}}</q-item-label>
+                  </q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section avatar>
+                    <q-icon color="secondary" name="event" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>Fecha de agendamiento</q-item-label>
+                    <q-item-label caption>{{resInfo.reservationDate}}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </div>{{element}}
+          </div>
           <div>
             <q-btn label="guardar" type="submit" color="secondary" />
             <q-btn label="limpiar" type="reset" color="secondary" flat class="q-ml-sm" />
@@ -192,4 +181,17 @@ export default ReservationPage
 .calendar-container
     & .q-scrollarea
         height: calc( 100vh - 100px )
+.my-event
+  width: 100%
+  position: absolute
+  font-size: 12px
+.full-width
+  left: 0
+  width: 100%
+.left-side
+  left: 0
+  width: 49.75%
+.right-side
+  left: 50.25%
+  width: 49.75%
 </style>

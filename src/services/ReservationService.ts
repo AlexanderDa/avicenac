@@ -5,12 +5,13 @@ import { Filter, encodeFilter } from '@/util'
 import moment from 'moment'
 
 interface ReservationFilter {
-  creationDate: Date
-  reservationDate: Date
-  doctorId: number
-  honoraryId: number
-  periodId: number
-  surgeryroomId: number
+  id?: number
+  creationDate?: Date
+  reservationDate?: Date
+  doctorId?: number
+  honoraryId?: number
+  periodId?: number
+  surgeryroomId?: number
 }
 
 export default class ReservationService extends Vue
